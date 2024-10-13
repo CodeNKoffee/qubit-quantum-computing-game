@@ -2,7 +2,7 @@ import bgImage from './assets/qubit-game-bg.png'
 import mascottImage from './assets/qubit-mascott.png';
 import pipeImage from './assets/qubit-game-pipe.png';
 
-let bird = { x: 50, y: 300, width: 40, height: 40, velocity: 0 };
+let qubit = { x: 50, y: 300, width: 40, height: 40, velocity: 0 };
 let pipes = [];
 let score = 0;
 let gameWidth = 800;
@@ -25,12 +25,12 @@ export function initGame(ctx) {
     new Promise(resolve => pipeImg.onload = resolve)
   ]).then(() => {
     // Images loaded, start game loop
-    requestAnimationFrame(() => updateGame(ctx, bird.y));
+    requestAnimationFrame(() => updateGame(ctx, qubit.y));
   });
 }
 
 export function startGame() {
-  bird = { x: 50, y: 300, width: 40, height: 40, velocity: 0 };
+  qubit = { x: 50, y: 300, width: 40, height: 40, velocity: 0 };
   pipes = [];
   score = 0;
 }
@@ -42,11 +42,11 @@ export function updateGame(ctx, faceY) {
   // Draw background
   ctx.drawImage(bg, 0, 0, gameWidth, gameHeight);
 
-  // Update bird position based on face position
-  bird.y = faceY;
+  // Update qubit position based on face position
+  qubit.y = faceY;
 
-  // Draw bird
-  ctx.drawImage(mascottImg, bird.x, bird.y, bird.width, bird.height);
+  // Draw qubit
+  ctx.drawImage(mascottImg, qubit.x, qubit.y, qubit.width, qubit.height);
 
   // Update and draw pipes
   if (pipes.length === 0 || pipes[pipes.length - 1].x < gameWidth - 300) {
@@ -61,20 +61,24 @@ export function updateGame(ctx, faceY) {
 
     // Draw pipes
     const pipeWidth = 80;
-    ctx.drawImage(pipeImg, pipe.x, 0, pipeWidth, pipe.topHeight);
+    ctx.save();
+    ctx.translate(pipe.x + pipeWidth / 2, pipe.topHeight);
+    ctx.rotate(Math.PI);
+    ctx.drawImage(pipeImg, -pipeWidth / 2, 0, pipeWidth, pipe.topHeight);
+    ctx.restore();
     ctx.drawImage(pipeImg, pipe.x, pipe.topHeight + 150, pipeWidth, gameHeight - pipe.topHeight - 150);
 
     // Check collision
     if (
-      bird.x + bird.width > pipe.x &&
-      bird.x < pipe.x + pipeWidth &&
-      (bird.y < pipe.topHeight || bird.y + bird.height > pipe.topHeight + 150)
+      qubit.x + qubit.width > pipe.x &&
+      qubit.x < pipe.x + pipeWidth &&
+      (qubit.y < pipe.topHeight || qubit.y + qubit.height > pipe.topHeight + 150)
     ) {
       startGame(); // Reset game on collision
     }
 
     // Score point
-    if (pipe.x + pipeWidth < bird.x && !pipe.scored) {
+    if (pipe.x + pipeWidth < qubit.x && !pipe.scored) {
       score++;
       pipe.scored = true;
     }
