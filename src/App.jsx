@@ -49,11 +49,14 @@ function App() {
         <video ref={videoRef} className="absolute top-0 right-0 w-1/4 h-1/4" autoPlay playsInline muted />
       </div>
       {gameState === 'start' && (
-        <button onClick={handleStartClick} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
-          Start Game
+        <button 
+          onClick={handleStartClick} 
+          className="mt-4 px-6 py-3 bg-blue-500 text-white rounded-lg text-xl hover:bg-blue-600 transition-colors"
+        >
+          Entangle to Start
         </button>
       )}
-      <div className="text-white text-2xl mt-4">Score: {score}</div>
+      <div className="text-white text-2xl mt-4">Quantum Score: {score}</div>
     </div>
   );
 }

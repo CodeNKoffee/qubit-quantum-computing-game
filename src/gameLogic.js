@@ -1,16 +1,36 @@
-let bird = { x: 50, y: 300, velocity: 0 };
+import bgImage from './assets/qubit-game-bg.png'
+import mascottImage from './assets/qubit-mascott.png';
+import pipeImage from './assets/qubit-game-pipe.png';
+
+let bird = { x: 50, y: 300, width: 40, height: 40, velocity: 0 };
 let pipes = [];
 let score = 0;
 let gameWidth = 800;
 let gameHeight = 600;
+let bg, mascottImg, pipeImg;
 
 export function initGame(ctx) {
-  // Load images, set up initial game state
-  // This is a placeholder - you'll need to add actual image loading
+  // Load images
+  bg = new Image();
+  bg.src = bgImage;
+  mascottImg = new Image();
+  mascottImg.src = mascottImage;
+  pipeImg = new Image();
+  pipeImg.src = pipeImage;
+
+  // Wait for images to load
+  Promise.all([
+    new Promise(resolve => bg.onload = resolve),
+    new Promise(resolve => mascottImg.onload = resolve),
+    new Promise(resolve => pipeImg.onload = resolve)
+  ]).then(() => {
+    // Images loaded, start game loop
+    requestAnimationFrame(() => updateGame(ctx, bird.y));
+  });
 }
 
 export function startGame() {
-  bird = { x: 50, y: 300, velocity: 0 };
+  bird = { x: 50, y: 300, width: 40, height: 40, velocity: 0 };
   pipes = [];
   score = 0;
 }
@@ -19,18 +39,20 @@ export function updateGame(ctx, faceY) {
   // Clear canvas
   ctx.clearRect(0, 0, gameWidth, gameHeight);
 
+  // Draw background
+  ctx.drawImage(bg, 0, 0, gameWidth, gameHeight);
+
   // Update bird position based on face position
   bird.y = faceY;
 
   // Draw bird
-  ctx.fillStyle = 'yellow';
-  ctx.fillRect(bird.x, bird.y, 40, 40);
+  ctx.drawImage(mascottImg, bird.x, bird.y, bird.width, bird.height);
 
   // Update and draw pipes
-  if (pipes.length === 0 || pipes[pipes.length - 1].x < gameWidth - 200) {
+  if (pipes.length === 0 || pipes[pipes.length - 1].x < gameWidth - 300) {
     pipes.push({
       x: gameWidth,
-      topHeight: Math.random() * (gameHeight - 200) + 50,
+      topHeight: Math.random() * (gameHeight - 300) + 50,
     });
   }
 
@@ -38,27 +60,27 @@ export function updateGame(ctx, faceY) {
     pipe.x -= 2;
 
     // Draw pipes
-    ctx.fillStyle = 'green';
-    ctx.fillRect(pipe.x, 0, 50, pipe.topHeight);
-    ctx.fillRect(pipe.x, pipe.topHeight + 150, 50, gameHeight - pipe.topHeight - 150);
+    const pipeWidth = 80;
+    ctx.drawImage(pipeImg, pipe.x, 0, pipeWidth, pipe.topHeight);
+    ctx.drawImage(pipeImg, pipe.x, pipe.topHeight + 150, pipeWidth, gameHeight - pipe.topHeight - 150);
 
     // Check collision
     if (
-      bird.x + 40 > pipe.x &&
-      bird.x < pipe.x + 50 &&
-      (bird.y < pipe.topHeight || bird.y + 40 > pipe.topHeight + 150)
+      bird.x + bird.width > pipe.x &&
+      bird.x < pipe.x + pipeWidth &&
+      (bird.y < pipe.topHeight || bird.y + bird.height > pipe.topHeight + 150)
     ) {
       startGame(); // Reset game on collision
     }
 
     // Score point
-    if (pipe.x + 50 < bird.x && !pipe.scored) {
+    if (pipe.x + pipeWidth < bird.x && !pipe.scored) {
       score++;
       pipe.scored = true;
     }
 
     // Remove off-screen pipes
-    if (pipe.x < -50) {
+    if (pipe.x < -pipeWidth) {
       pipes.splice(index, 1);
     }
   });
