@@ -15,7 +15,6 @@ function App() {
     };
 
     window.addEventListener('resize', handleResize);
-
     return () => {
       window.removeEventListener('resize', handleResize);
     };
@@ -60,7 +59,6 @@ function App() {
         gameLoop();
       }).catch(error => {
         console.error('Failed to initialize face detection:', error);
-        // Start the game loop even if face detection initialization fails
         gameLoop();
       });
     }

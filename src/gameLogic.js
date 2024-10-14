@@ -70,6 +70,8 @@ export function updateGame(ctx, faceY, width, height) {
     });
   }
 
+  let collisionDetected = false;
+
   pipes.forEach((pipe, index) => {
     pipe.x -= 2;
 
@@ -87,7 +89,7 @@ export function updateGame(ctx, faceY, width, height) {
       qubit.x + qubit.width > pipe.x && qubit.x < pipe.x + pipeWidth &&
       (qubit.y < pipe.topHeight || qubit.y + qubit.height > pipe.topHeight + 150)
     ) {
-      startGame(gameWidth, gameHeight); // Restart game on collision
+      collisionDetected = true; // Set collision flag
     }
 
     // Remove pipes that have moved out of view
@@ -96,6 +98,10 @@ export function updateGame(ctx, faceY, width, height) {
       score++;
     }
   });
+
+  if (collisionDetected) {
+    return null; // Return null if collision detected
+  }
 
   return score;
 }
