@@ -25,36 +25,76 @@ function App() {
     const canvas = canvasRef.current;
     const video = videoRef.current;
     const ctx = canvas.getContext('2d');
-    
+
     canvas.width = canvasSize.width;
     canvas.height = canvasSize.height;
-    
+
     initGame(ctx, canvasSize.width, canvasSize.height);
-    initFaceDetection(video);
 
     let animationFrameId;
     let lastFaceY = canvasSize.height / 2;
 
     const gameLoop = async () => {
       if (gameState === 'playing') {
-        const faceY = await detectFace(video);
-        lastFaceY = faceY || lastFaceY;
+        try {
+          const faceY = await detectFace(video);
+          lastFaceY = faceY !== null ? faceY : lastFaceY;
+        } catch (error) {
+          console.error('Face detection error:', error);
+          // Continue the game even if face detection fails
+        }
+
         const newScore = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height);
-        setScore(newScore);
+
+        if (newScore === null) {
+          setGameState('gameover');
+        } else {
+          setScore(newScore);
+        }
       }
       animationFrameId = requestAnimationFrame(gameLoop);
     };
 
-    gameLoop();
+    if (gameState === 'playing') {
+      initFaceDetection(video).then(() => {
+        gameLoop();
+      }).catch(error => {
+        console.error('Failed to initialize face detection:', error);
+        // Start the game loop even if face detection initialization fails
+        gameLoop();
+      });
+    }
 
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
   }, [gameState, canvasSize]);
 
-  const handleStartClick = () => {
-    setGameState('playing');
-    startGame(canvasSize.width, canvasSize.height);
+  const handleStartClick = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      videoRef.current.srcObject = stream;
+      await videoRef.current.play();
+
+      setGameState('playing');
+      startGame(canvasSize.width, canvasSize.height);
+    } catch (error) {
+      console.error('Camera access denied or error occurred:', error);
+      alert('Camera access is required to play the game. The game will start without face detection.');
+      setGameState('playing');
+      startGame(canvasSize.width, canvasSize.height);
+    }
+  };
+
+  const handleRestart = () => {
+    const stream = videoRef.current.srcObject;
+    if (stream) {
+      const tracks = stream.getTracks();
+      tracks.forEach(track => track.stop());
+    }
+
+    setScore(0);
+    setGameState('start');
   };
 
   return (
@@ -67,18 +107,18 @@ function App() {
         ref={videoRef}
         style={{ position: 'absolute', top: 0, left: 0, width: '1px', height: '1px', opacity: 0 }}
       />
+
+      {/* Start Screen */}
       {gameState === 'start' && (
-        <div style={{ 
+        <div style={{
           position: 'absolute', 
-          top: 0, 
-          left: 0, 
-          width: '100%', 
-          height: '100%', 
+          top: 0, left: 0, 
+          width: '100%', height: '100%', 
           display: 'flex', 
           flexDirection: 'column', 
           justifyContent: 'center', 
           alignItems: 'center', 
-          backgroundColor: 'rgba(0, 0, 0, 0.7)' // Overlay effect 
+          backgroundColor: 'rgba(0, 0, 0, 0.7)' 
         }}>
           <h1 style={{ color: 'white', fontSize: '48px', marginBottom: '20px' }}>Quantum Flappy Face</h1>
           <button 
@@ -97,16 +137,51 @@ function App() {
           </button>
         </div>
       )}
-      <div style={{ 
-        position: 'absolute', 
-        top: '10px', 
-        left: '10px', 
-        color: 'white', 
-        fontSize: '24px', 
-        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)' // Text shadow for better visibility 
-      }}>
-        Quantum Score: {score}
-      </div>
+
+      {/* Game Over Screen */}
+      {gameState === 'gameover' && (
+        <div style={{
+          position: 'absolute', 
+          top: 0, left: 0, 
+          width: '100%', height: '100%', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          backgroundColor: 'rgba(0, 0, 0, 0.7)' 
+        }}>
+          <h1 style={{ color: 'white', fontSize: '48px', marginBottom: '20px' }}>Game Over</h1>
+          <p style={{ color: 'white', fontSize: '24px', marginBottom: '20px' }}>Your Quantum Score: {score}</p>
+          <button 
+            onClick={handleRestart} 
+            style={{
+              fontSize: '20px', 
+              padding: '10px 20px', 
+              margin: '20px', 
+              backgroundColor: 'red', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px',
+              cursor: 'pointer'
+            }}>
+            Play Again
+          </button>
+        </div>
+      )}
+
+      {/* Score Display */}
+      {gameState === 'playing' && (
+        <div style={{
+          position: 'absolute', 
+          top: '10px', 
+          left: '10px', 
+          color: 'white', 
+          fontSize: '24px', 
+          textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
+        }}>
+          Quantum Score: {score}
+        </div>
+      )}
     </div>
   );
 }
