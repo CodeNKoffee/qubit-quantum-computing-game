@@ -35,7 +35,7 @@ export function initGame(ctx, width, height) {
 export function startGame(width, height) {
   gameWidth = width;
   gameHeight = height;
-  qubit = { x: 50, y: height / 2, width: 60, height: 60, velocity: 0 };
+  qubit = { x: 150, y: height / 2, width: 75, height: 60, velocity: 0 };
   pipes = [];
   score = 0;
   lastFaceY = height / 2;
