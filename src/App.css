@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+button {
+  font-size: 20px;
+  padding: 10px 20px;
+  margin: 20px;
+  background-color: purple;
+  color: white;
+  border: none;
+  border-radius: 10px;
+}

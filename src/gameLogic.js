@@ -2,14 +2,14 @@ import bgImage from './assets/qubit-game-bg.png'
 import mascottImage from './assets/qubit-mascott.png';
 import pipeImage from './assets/qubit-game-pipe.png';
 
-let qubit = { x: 50, y: 300, width: 40, height: 40, velocity: 0 };
-let pipes = [];
-let score = 0;
-let gameWidth = 800;
-let gameHeight = 600;
-let bg, mascottImg, pipeImg;
+let qubit, pipes, score, gameWidth, gameHeight, bg, mascottImg, pipeImg;
+let lastFaceY;
+const smoothingFactor = 0.1;
 
-export function initGame(ctx) {
+export function initGame(ctx, width, height) {
+  gameWidth = width;
+  gameHeight = height;
+  
   // Load images
   bg = new Image();
   bg.src = bgImage;
@@ -24,26 +24,40 @@ export function initGame(ctx) {
     new Promise(resolve => mascottImg.onload = resolve),
     new Promise(resolve => pipeImg.onload = resolve)
   ]).then(() => {
+    console.log('All images loaded successfully');
+    console.log('Mascot image dimensions:', mascottImg.width, 'x', mascottImg.height);
+    startGame(width, height);
     // Images loaded, start game loop
-    requestAnimationFrame(() => updateGame(ctx, qubit.y));
+    requestAnimationFrame(() => updateGame(ctx, qubit.y, width, height));
   });
 }
 
-export function startGame() {
-  qubit = { x: 50, y: 300, width: 40, height: 40, velocity: 0 };
+export function startGame(width, height) {
+  gameWidth = width;
+  gameHeight = height;
+  qubit = { x: 50, y: height / 2, width: 60, height: 60, velocity: 0 };
   pipes = [];
   score = 0;
+  lastFaceY = height / 2;
 }
 
-export function updateGame(ctx, faceY) {
+export function updateGame(ctx, faceY, width, height) {
+  gameWidth = width;
+  gameHeight = height;
+
   // Clear canvas
   ctx.clearRect(0, 0, gameWidth, gameHeight);
 
   // Draw background
   ctx.drawImage(bg, 0, 0, gameWidth, gameHeight);
 
-  // Update qubit position based on face position
-  qubit.y = faceY;
+  // Smooth out the qubit's movement
+  if (faceY !== null) {
+    qubit.y = qubit.y + (faceY - qubit.y) * smoothingFactor;
+  } else {
+    qubit.y = qubit.y + (lastFaceY - qubit.y) * smoothingFactor;
+  }
+  lastFaceY = qubit.y;
 
   // Draw qubit
   ctx.drawImage(mascottImg, qubit.x, qubit.y, qubit.width, qubit.height);
@@ -70,29 +84,18 @@ export function updateGame(ctx, faceY) {
 
     // Check collision
     if (
-      qubit.x + qubit.width > pipe.x &&
-      qubit.x < pipe.x + pipeWidth &&
+      qubit.x + qubit.width > pipe.x && qubit.x < pipe.x + pipeWidth &&
       (qubit.y < pipe.topHeight || qubit.y + qubit.height > pipe.topHeight + 150)
     ) {
-      startGame(); // Reset game on collision
+      startGame(gameWidth, gameHeight); // Restart game on collision
     }
 
-    // Score point
-    if (pipe.x + pipeWidth < qubit.x && !pipe.scored) {
-      score++;
-      pipe.scored = true;
-    }
-
-    // Remove off-screen pipes
-    if (pipe.x < -pipeWidth) {
+    // Remove pipes that have moved out of view
+    if (pipe.x + pipeWidth < 0) {
       pipes.splice(index, 1);
+      score++;
     }
   });
-
-  // Draw score
-  ctx.fillStyle = 'white';
-  ctx.font = '24px Arial';
-  ctx.fillText(`Score: ${score}`, 10, 30);
 
   return score;
 }

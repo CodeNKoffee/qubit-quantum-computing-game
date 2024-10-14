@@ -7,23 +7,39 @@ function App() {
   const videoRef = useRef(null);
   const [gameState, setGameState] = useState('start');
   const [score, setScore] = useState(0);
+  const [canvasSize, setCanvasSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setCanvasSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
     const ctx = canvas.getContext('2d');
     
-    initGame(ctx);
+    canvas.width = canvasSize.width;
+    canvas.height = canvasSize.height;
+    
+    initGame(ctx, canvasSize.width, canvasSize.height);
     initFaceDetection(video);
 
     let animationFrameId;
-    let lastFaceY = 300;
+    let lastFaceY = canvasSize.height / 2;
 
     const gameLoop = async () => {
       if (gameState === 'playing') {
         const faceY = await detectFace(video);
         lastFaceY = faceY || lastFaceY;
-        const newScore = updateGame(ctx, lastFaceY);
+        const newScore = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height);
         setScore(newScore);
       }
       animationFrameId = requestAnimationFrame(gameLoop);
@@ -34,29 +50,63 @@ function App() {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [gameState]);
+  }, [gameState, canvasSize]);
 
   const handleStartClick = () => {
     setGameState('playing');
-    startGame();
+    startGame(canvasSize.width, canvasSize.height);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
-      <h1 className="text-4xl font-bold text-white mb-4">Quantum Flappy Face</h1>
-      <div className="relative">
-        <canvas ref={canvasRef} width={800} height={600} className="border-4 border-blue-500" />
-        <video ref={videoRef} className="absolute top-0 right-0 w-1/4 h-1/4" autoPlay playsInline muted />
-      </div>
+    <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
+      <canvas
+        ref={canvasRef}
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+      />
+      <video
+        ref={videoRef}
+        style={{ position: 'absolute', top: 0, left: 0, width: '1px', height: '1px', opacity: 0 }}
+      />
       {gameState === 'start' && (
-        <button 
-          onClick={handleStartClick} 
-          className="mt-4 px-6 py-3 bg-blue-500 text-white rounded-lg text-xl hover:bg-blue-600 transition-colors"
-        >
-          Entangle to Start
-        </button>
+        <div style={{ 
+          position: 'absolute', 
+          top: 0, 
+          left: 0, 
+          width: '100%', 
+          height: '100%', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          backgroundColor: 'rgba(0, 0, 0, 0.7)' // Overlay effect 
+        }}>
+          <h1 style={{ color: 'white', fontSize: '48px', marginBottom: '20px' }}>Quantum Flappy Face</h1>
+          <button 
+            onClick={handleStartClick} 
+            style={{
+              fontSize: '20px', 
+              padding: '10px 20px', 
+              margin: '20px', 
+              backgroundColor: 'purple', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px',
+              cursor: 'pointer'
+            }}>
+            Entangle to Start
+          </button>
+        </div>
       )}
-      <div className="text-white text-2xl mt-4">Quantum Score: {score}</div>
+      <div style={{ 
+        position: 'absolute', 
+        top: '10px', 
+        left: '10px', 
+        color: 'white', 
+        fontSize: '24px', 
+        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)' // Text shadow for better visibility 
+      }}>
+        Quantum Score: {score}
+      </div>
     </div>
   );
 }
