@@ -38,7 +38,7 @@ function App() {
         try {
           const faceY = await detectFace(video);
           const scaledFaceY = faceY !== null ? (faceY / videoRef.current.videoHeight) * canvasSize.height : lastFaceY;
-          lastFaceY = scaledFaceY; // Keep the last known face Y position
+          lastFaceY = scaledFaceY;
         } catch (error) {
           console.error('Face detection error:', error);
         }
@@ -46,12 +46,16 @@ function App() {
         const newScore = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height);
     
         if (newScore === null) {
-          setGameState('gameover');
+          setGameState('gameover'); // Stop the game on collision
+          cancelAnimationFrame(animationFrameId);
         } else {
           setScore(newScore);
         }
       }
-      animationFrameId = requestAnimationFrame(gameLoop);
+    
+      if (gameState === 'playing') {
+        animationFrameId = requestAnimationFrame(gameLoop);
+      }
     };
 
     if (gameState === 'playing') {
@@ -72,10 +76,13 @@ function App() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       videoRef.current.srcObject = stream;
-      await videoRef.current.play();
-
-      setGameState('playing');
-      startGame(canvasSize.width, canvasSize.height);
+      
+      // Wait for the video to start playing before initializing face detection
+      videoRef.current.onloadedmetadata = async () => {
+        await initFaceDetection(videoRef.current);
+        setGameState('playing');
+        startGame(canvasSize.width, canvasSize.height);
+      };
     } catch (error) {
       console.error('Camera access denied or error occurred:', error);
       alert('Camera access is required to play the game. The game will start without face detection.');

@@ -25,9 +25,10 @@ export function initGame(ctx, width, height) {
     new Promise(resolve => pipeImg.onload = resolve)
   ]).then(() => {
     console.log('All images loaded successfully');
-    console.log('Mascot image dimensions:', mascottImg.width, 'x', mascottImg.height);
-    startGame(width, height);
+    startGame(width, height);  // Ensure this fires only after images are loaded
     requestAnimationFrame(() => updateGame(ctx, qubit.y, width, height));
+  }).catch(error => {
+    console.error('Error loading images:', error);
   });
 }
 
