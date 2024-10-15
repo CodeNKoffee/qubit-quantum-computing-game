@@ -37,14 +37,14 @@ function App() {
       if (gameState === 'playing') {
         try {
           const faceY = await detectFace(video);
-          lastFaceY = faceY !== null ? faceY : lastFaceY;
+          const scaledFaceY = faceY !== null ? (faceY / videoRef.current.videoHeight) * canvasSize.height : lastFaceY;
+          lastFaceY = scaledFaceY; // Keep the last known face Y position
         } catch (error) {
           console.error('Face detection error:', error);
-          // Continue the game even if face detection fails
         }
-
+    
         const newScore = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height);
-
+    
         if (newScore === null) {
           setGameState('gameover');
         } else {

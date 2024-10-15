@@ -1,46 +1,23 @@
-import * as tf from '@tensorflow/tfjs';
-import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection';
+import * as faceDetection from '@tensorflow-models/face-detection';
 
 let model;
-let lastDetectionTime = 0;
 
 export async function initFaceDetection(videoElement) {
-  await tf.setBackend('webgl');
-  model = await faceLandmarksDetection.load(
-    faceLandmarksDetection.SupportedPackages.mediapipeFacemesh,
-    { maxFaces: 1 }
-  );
+  // Load the face detection model
+  model = await faceDetection.load(faceDetection.SupportedModels.MediaPipeFaceDetector);
 
-  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoElement.srcObject = stream;
-  }
-  console.log('Face detection initialized');
+  // Access the user's camera stream
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  videoElement.srcObject = stream;
 }
 
 export async function detectFace(video) {
-  if (!model) return null;
+  const faces = await model.estimateFaces({ input: video });
 
-  const currentTime = Date.now();
-  if (currentTime - lastDetectionTime < 100) {
-    return null; // Limit detection to 10 times per second
-  }
-  lastDetectionTime = currentTime;
-
-  const predictions = await model.estimateFaces({
-    input: video,
-    returnTensors: false,
-    flipHorizontal: false,
-    predictIrises: false
-  });
-
-  if (predictions.length > 0) {
-    const keypoints = predictions[0].scaledMesh;
-    const noseY = keypoints[4][1]; // Nose tip Y coordinate
-    console.log('Face detected, nose Y:', noseY);
+  if (faces.length > 0) {
+    // Find the Y coordinate of the nose tip
+    const noseY = faces[0].keypoints.find(point => point.name === 'noseTip').y;
     return noseY;
   }
-
-  console.log('No face detected');
   return null;
 }

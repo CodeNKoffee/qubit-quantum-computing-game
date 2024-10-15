@@ -1,4 +1,4 @@
-import bgImage from './assets/qubit-game-bg.png'
+import bgImage from './assets/qubit-game-bg.png';
 import mascottImage from './assets/qubit-mascott.png';
 import pipeImage from './assets/qubit-game-pipe.png';
 
@@ -27,7 +27,6 @@ export function initGame(ctx, width, height) {
     console.log('All images loaded successfully');
     console.log('Mascot image dimensions:', mascottImg.width, 'x', mascottImg.height);
     startGame(width, height);
-    // Images loaded, start game loop
     requestAnimationFrame(() => updateGame(ctx, qubit.y, width, height));
   });
 }
@@ -51,7 +50,7 @@ export function updateGame(ctx, faceY, width, height) {
   // Draw background
   ctx.drawImage(bg, 0, 0, gameWidth, gameHeight);
 
-  // Smooth out the qubit's movement
+  // Smooth out the qubit's movement based on face detection
   if (faceY !== null) {
     const targetY = faceY - qubit.height / 2; // Center the qubit on the detected nose
     qubit.y += (targetY - qubit.y) * smoothingFactor;
