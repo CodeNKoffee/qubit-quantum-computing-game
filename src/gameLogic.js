@@ -53,11 +53,15 @@ export function updateGame(ctx, faceY, width, height) {
 
   // Smooth out the qubit's movement
   if (faceY !== null) {
-    qubit.y = qubit.y + (faceY - qubit.y) * smoothingFactor;
+    const targetY = faceY - qubit.height / 2; // Center the qubit on the detected nose
+    qubit.y += (targetY - qubit.y) * smoothingFactor;
   } else {
-    qubit.y = qubit.y + (lastFaceY - qubit.y) * smoothingFactor;
+    qubit.y += (lastFaceY - qubit.y) * smoothingFactor;
   }
   lastFaceY = qubit.y;
+
+  // Prevent the qubit from going out of bounds
+  qubit.y = Math.max(0, Math.min(qubit.y, gameHeight - qubit.height));
 
   // Draw qubit
   ctx.drawImage(mascottImg, qubit.x, qubit.y, qubit.width, qubit.height);
