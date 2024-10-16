@@ -5,6 +5,8 @@ import pipeImage from './assets/qubit-game-pipe.png';
 let qubit, pipes, score, gameWidth, gameHeight, bg, mascottImg, pipeImg;
 let lastFaceY;
 const smoothingFactor = 0.1;
+const pipeSpeed = 5;  // Increased pipe speed
+// const pipeDistance = 200;  // Closer pipes
 
 export function initGame(ctx, width, height) {
   gameWidth = width;
@@ -78,7 +80,7 @@ export function updateGame(ctx, faceY, width, height) {
   let collisionDetected = false;
 
   pipes.forEach((pipe, index) => {
-    pipe.x -= 2;
+    pipe.x -= pipeSpeed;
 
     // Draw pipes
     const pipeWidth = 80;

@@ -39,7 +39,7 @@ function App() {
         try {
           const detections = await detectFace(video);
           if (detections && detections.length > 0) {
-            const faceY = detections[0].box.y;  // Get the Y-coordinate from face detection
+            const faceY = detections[0].box.y;
             const scaledFaceY = (faceY / videoRef.current.videoHeight) * canvasSize.height;
             lastFaceY = scaledFaceY;
           } else {
@@ -48,7 +48,7 @@ function App() {
         } catch (error) {
           console.error('Face detection error:', error);
         }
-    
+
         const newScore = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height);
         if (newScore === null) {
           setGameState('gameover');
@@ -57,7 +57,7 @@ function App() {
           setScore(newScore);
         }
       }
-    
+
       if (gameState === 'playing') {
         animationFrameId = requestAnimationFrame(gameLoop);
       }
@@ -81,7 +81,7 @@ function App() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       videoRef.current.srcObject = stream;
-  
+
       videoRef.current.onloadedmetadata = async () => {
         try {
           await initFaceDetection(videoRef.current);
@@ -127,25 +127,25 @@ function App() {
       {/* Start Screen */}
       {gameState === 'start' && (
         <div style={{
-          position: 'absolute', 
-          top: 0, left: 0, 
-          width: '100%', height: '100%', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          backgroundColor: 'rgba(0, 0, 0, 0.7)' 
+          position: 'absolute',
+          top: 0, left: 0,
+          width: '100%', height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)'
         }}>
           <h1 style={{ color: 'white', fontSize: '48px', marginBottom: '20px' }}>Quantum Flappy Face</h1>
-          <button 
-            onClick={handleStartClick} 
+          <button
+            onClick={handleStartClick}
             style={{
-              fontSize: '20px', 
-              padding: '10px 20px', 
-              margin: '20px', 
-              backgroundColor: 'purple', 
-              color: 'white', 
-              border: 'none', 
+              fontSize: '20px',
+              padding: '10px 20px',
+              margin: '20px',
+              backgroundColor: 'purple',
+              color: 'white',
+              border: 'none',
               borderRadius: '8px',
               cursor: 'pointer'
             }}>
@@ -158,26 +158,26 @@ function App() {
       {/* Game Over Screen */}
       {gameState === 'gameover' && (
         <div style={{
-          position: 'absolute', 
-          top: 0, left: 0, 
-          width: '100%', height: '100%', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          backgroundColor: 'rgba(0, 0, 0, 0.7)' 
+          position: 'absolute',
+          top: 0, left: 0,
+          width: '100%', height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)'
         }}>
           <h1 style={{ color: 'white', fontSize: '48px', marginBottom: '20px' }}>Game Over</h1>
           <p style={{ color: 'white', fontSize: '24px', marginBottom: '20px' }}>Your Quantum Score: {score}</p>
-          <button 
-            onClick={handleRestart} 
+          <button
+            onClick={handleRestart}
             style={{
-              fontSize: '20px', 
-              padding: '10px 20px', 
-              margin: '20px', 
-              backgroundColor: 'red', 
-              color: 'white', 
-              border: 'none', 
+              fontSize: '20px',
+              padding: '10px 20px',
+              margin: '20px',
+              backgroundColor: 'red',
+              color: 'white',
+              border: 'none',
               borderRadius: '8px',
               cursor: 'pointer'
             }}>
@@ -189,11 +189,11 @@ function App() {
       {/* Score Display */}
       {gameState === 'playing' && (
         <div style={{
-          position: 'absolute', 
-          top: '10px', 
-          left: '10px', 
-          color: 'white', 
-          fontSize: '24px', 
+          position: 'absolute',
+          top: '10px',
+          left: '10px',
+          color: 'white',
+          fontSize: '24px',
           textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
         }}>
           Quantum Score: {score}
