@@ -39,6 +39,7 @@ function App() {
         if (gameState === 'playing') {
           try {
             const detections = await detectFace(video);
+            console.log('Detections:', detections);
             if (detections && detections.length > 0) {
               const faceY = detections[0].box.y;
               const scaledFaceY = (faceY / videoRef.current.videoHeight) * canvasSize.height;
@@ -89,9 +90,11 @@ function App() {
           await initFaceDetection(videoRef.current);
           setGameState('playing');
           startGame(canvasSize.width, canvasSize.height);
+          console.log(videoRef.current.videoWidth, videoRef.current.videoHeight);
         } catch (error) {
           console.error('Error initializing face detection:', error);
           setError('Face detection failed. The game will continue without it.');
+          alert('Face detection failed. The game will continue without it.');
           setGameState('playing');
           startGame(canvasSize.width, canvasSize.height);
         }

@@ -4,7 +4,7 @@ import pipeImage from './assets/qubit-game-pipe.png';
 
 let qubit, pipes, score, gameWidth, gameHeight, bg, mascottImg, pipeImg;
 let lastFaceY;
-const smoothingFactor = 0.1;
+const smoothingFactor = 0.5;
 const pipeSpeed = 5;  // Increased pipe speed
 // const pipeDistance = 200;  // Closer pipes
 
