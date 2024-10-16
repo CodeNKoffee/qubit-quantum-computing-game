@@ -7,7 +7,7 @@ export async function initFaceDetection() {
   
   if (!isModelLoaded) {
     try {
-      await faceapi.nets.tinyFaceDetector.load('/models/');
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/models'); // adjust path if necessary
       console.log('Model loaded successfully.');
       isModelLoaded = true;
     } catch (error) {
@@ -35,6 +35,7 @@ export const detectFace = async (videoElement) => {
 
   try {
     const detections = await faceapi.detectAllFaces(videoElement, new faceapi.TinyFaceDetectorOptions());
+    console.log('Detections:', detections); // Should print out detected faces
     console.log('Detections in JS:', detections);
     return detections;
   } catch (error) {
