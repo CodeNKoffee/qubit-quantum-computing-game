@@ -35,30 +35,32 @@ function App() {
     let lastFaceY = canvasSize.height / 2;
 
     const gameLoop = async () => {
-      if (gameState === 'playing') {
-        try {
-          const detections = await detectFace(video);
-          if (detections && detections.length > 0) {
-            const faceY = detections[0].box.y;
-            const scaledFaceY = (faceY / videoRef.current.videoHeight) * canvasSize.height;
-            lastFaceY = scaledFaceY;
-          } else {
-            console.log('No face detected, using lastFaceY');
+      if (gameState === 'playing' || gameState === 'gameover') {
+        if (gameState === 'playing') {
+          try {
+            const detections = await detectFace(video);
+            if (detections && detections.length > 0) {
+              const faceY = detections[0].box.y;
+              const scaledFaceY = (faceY / videoRef.current.videoHeight) * canvasSize.height;
+              lastFaceY = scaledFaceY;
+            } else {
+              console.log('No face detected, using lastFaceY');
+            }
+          } catch (error) {
+            console.error('Face detection error:', error);
           }
-        } catch (error) {
-          console.error('Face detection error:', error);
         }
-
-        const newScore = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height);
-        if (newScore === null) {
+    
+        const newScore = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height, gameState);
+        if (newScore === null && gameState === 'playing') {
           setGameState('gameover');
           cancelAnimationFrame(animationFrameId);
-        } else {
+        } else if (gameState === 'playing') {
           setScore(newScore);
         }
       }
-
-      if (gameState === 'playing') {
+    
+      if (gameState === 'playing' || gameState === 'gameover') {
         animationFrameId = requestAnimationFrame(gameLoop);
       }
     };
@@ -108,9 +110,9 @@ function App() {
       const tracks = stream.getTracks();
       tracks.forEach(track => track.stop());
     }
-
-    setScore(0);
-    setGameState('start');
+  
+    setScore(0);  // Reset score on restart
+    setGameState('start');  // Return to start screen
   };
 
   return (
