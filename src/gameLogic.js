@@ -71,6 +71,7 @@ export function updateGame(ctx, faceY, width, height) {
     pipes.push({
       x: gameWidth,
       topHeight: Math.random() * (gameHeight - 300) + 50,
+      passed: false // New property to track if the qubit has passed the pipe
     });
   }
 
@@ -96,10 +97,15 @@ export function updateGame(ctx, faceY, width, height) {
       collisionDetected = true; // Set collision flag
     }
 
+    // Check if qubit passed the pipe and increase score
+    if (!pipe.passed && pipe.x + pipeWidth < qubit.x) {
+      pipe.passed = true;
+      score++;
+    }
+
     // Remove pipes that have moved out of view
     if (pipe.x + pipeWidth < 0) {
       pipes.splice(index, 1);
-      score++;
     }
   });
 
