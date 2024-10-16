@@ -1,27 +1,43 @@
-import * as faceDetection from '@tensorflow-models/face-detection';
+import * as faceapi from 'face-api.js';
 
-let model;
+let isModelLoaded = false;
 
-export async function initFaceDetection(videoElement) {
-  try {
-    model = await faceDetection.load(faceDetection.SupportedModels.MediaPipeFaceDetector);
-    videoElement.play(); // Ensure video playback starts after loading the stream
-  } catch (error) {
-    console.error('Face detection model faile d to load:', error);
+export async function initFaceDetection() {
+  console.log('Initializing face detection...');
+  
+  if (!isModelLoaded) {
+    try {
+      await faceapi.nets.tinyFaceDetector.load('/models');
+      console.log('Model loaded successfully.');
+      isModelLoaded = true;
+    } catch (error) {
+      console.error('Error loading face detection model:', error);
+      throw new Error('Face detection model loading failed. Have you downloaded the model files?');
+    }
   }
 }
 
-export async function detectFace(video) {
-  if (!model) {
-    console.error('Face detection model is not loaded');
+export const detectFace = async (videoElement) => {
+  if (!isModelLoaded) {
+    console.warn('Face detection model not loaded. Attempting to load...');
+    try {
+      await initFaceDetection();
+    } catch (error) {
+      console.error('Failed to load face detection model:', error);
+      return null;
+    }
+  }
+
+  if (!videoElement) {
+    console.warn('Video element is not provided');
     return null;
   }
 
-  const faces = await model.estimateFaces({ input: video });
-  
-  if (faces.length > 0) {
-    const noseY = faces[0].keypoints.find(point => point.name === 'noseTip')?.y;
-    return noseY || null; // Return null if noseTip is not found
+  try {
+    const detections = await faceapi.detectAllFaces(videoElement, new faceapi.TinyFaceDetectorOptions());
+    return detections;
+  } catch (error) {
+    console.error("Face detection error:", error);
+    return null;
   }
-  return null;
-}
+};

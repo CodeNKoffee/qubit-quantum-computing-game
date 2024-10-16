@@ -8,6 +8,7 @@ function App() {
   const [gameState, setGameState] = useState('start');
   const [score, setScore] = useState(0);
   const [canvasSize, setCanvasSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -36,17 +37,21 @@ function App() {
     const gameLoop = async () => {
       if (gameState === 'playing') {
         try {
-          const faceY = await detectFace(video);
-          const scaledFaceY = faceY !== null ? (faceY / videoRef.current.videoHeight) * canvasSize.height : lastFaceY;
-          lastFaceY = scaledFaceY;
+          const detections = await detectFace(video);
+          if (detections && detections.length > 0) {
+            const faceY = detections[0].box.y;  // Get the Y-coordinate from face detection
+            const scaledFaceY = (faceY / videoRef.current.videoHeight) * canvasSize.height;
+            lastFaceY = scaledFaceY;
+          } else {
+            console.log('No face detected, using lastFaceY');
+          }
         } catch (error) {
           console.error('Face detection error:', error);
         }
     
         const newScore = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height);
-    
         if (newScore === null) {
-          setGameState('gameover'); // Stop the game on collision
+          setGameState('gameover');
           cancelAnimationFrame(animationFrameId);
         } else {
           setScore(newScore);
@@ -76,16 +81,22 @@ function App() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       videoRef.current.srcObject = stream;
-      
-      // Wait for the video to start playing before initializing face detection
+  
       videoRef.current.onloadedmetadata = async () => {
-        await initFaceDetection(videoRef.current);
-        setGameState('playing');
-        startGame(canvasSize.width, canvasSize.height);
+        try {
+          await initFaceDetection(videoRef.current);
+          setGameState('playing');
+          startGame(canvasSize.width, canvasSize.height);
+        } catch (error) {
+          console.error('Error initializing face detection:', error);
+          setError('Face detection failed. The game will continue without it.');
+          setGameState('playing');
+          startGame(canvasSize.width, canvasSize.height);
+        }
       };
     } catch (error) {
       console.error('Camera access denied or error occurred:', error);
-      alert('Camera access is required to play the game. The game will start without face detection.');
+      setError('Camera access is required to play the game. The game will start without face detection.');
       setGameState('playing');
       startGame(canvasSize.width, canvasSize.height);
     }
@@ -140,6 +151,7 @@ function App() {
             }}>
             Entangle to Start
           </button>
+          {error && <p style={{ color: 'red', fontSize: '16px' }}>{error}</p>}
         </div>
       )}
 
