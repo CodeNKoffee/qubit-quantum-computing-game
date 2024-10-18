@@ -1,6 +1,5 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { initGame, updateGame, startGame } from './gameLogic';
-import throttledGetMovement from './faceDetection';
 import bgImage from './assets/qubit-game-bg.png';
 
 function App() {
@@ -10,6 +9,9 @@ function App() {
   const [score, setScore] = useState(0);
   const [canvasSize, setCanvasSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [error, setError] = useState(null);
+  
+  // Move lastFrameData to a ref to maintain state across renders
+  const lastFrameDataRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -21,6 +23,45 @@ function App() {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  const detectMotion = useCallback((video) => {
+    if (!video) return 0;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(video, 0, 0, width, height);
+    
+    const currentFrameData = ctx.getImageData(0, 0, width, height).data;
+    
+    if (lastFrameDataRef.current) {
+      const movement = calculateFrameDifference(currentFrameData, lastFrameDataRef.current);
+      lastFrameDataRef.current = currentFrameData; // Update lastFrameData
+      return movement;
+    }
+
+    lastFrameDataRef.current = currentFrameData; // Initialize on first frame
+    return 0; // No movement on the first frame
+  }, []);
+
+  const calculateFrameDifference = (currentData, lastData) => {
+    let totalDifference = 0;
+
+    for (let i = 0; i < currentData.length; i += 4) {
+      const diff =
+        Math.abs(currentData[i] - lastData[i]) +
+        Math.abs(currentData[i + 1] - lastData[i + 1]) +
+        Math.abs(currentData[i + 2] - lastData[i + 2]);
+      
+      if (diff > 50) totalDifference++; // Adjust threshold for sensitivity
+    }
+
+    return totalDifference > 1000 ? 1 : (totalDifference < 500 ? -1 : 0);
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -34,17 +75,13 @@ function App() {
     let animationFrameId;
     let lastFaceY = canvasSize.height / 2;
 
-    const gameLoop = async () => {
+    const gameLoop = () => {
       if (gameState === 'playing') {
-        try {
-          const movement = await throttledGetMovement();
-          if (movement !== 0) {
-            const adjustment = movement * 20;
-            lastFaceY += adjustment;
-            lastFaceY = Math.max(0, Math.min(lastFaceY, canvasSize.height));
-          }
-        } catch (error) {
-          console.error('Face detection error:', error);
+        const movement = detectMotion(videoRef.current);
+        if (movement !== 0) {
+          const adjustment = movement * 20; // Adjust speed multiplier
+          lastFaceY += adjustment;
+          lastFaceY = Math.max(0, Math.min(lastFaceY, canvasSize.height));
         }
 
         const gameStatus = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height);
@@ -69,7 +106,7 @@ function App() {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [gameState, canvasSize]);
+  }, [gameState, canvasSize, detectMotion]);
 
   const handleStartClick = async () => {
     try {
@@ -109,6 +146,7 @@ function App() {
       <video
         ref={videoRef}
         style={{ position: 'absolute', top: 0, left: 0, width: '1px', height: '1px', opacity: 0 }}
+        autoPlay
       />
   
       {(gameState === 'start' || gameState === 'gameover') && (
@@ -183,22 +221,20 @@ function App() {
           fontWeight: 'bold',
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
           padding: '10px',
-          borderRadius: '10px'
+          borderRadius: '16px'
         }}>
           Quantum Score: {score}
         </div>
       )}
-  
+
       {error && (
         <div style={{
           position: 'absolute',
-          top: '10px', left: '10px',
+          top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)',
           color: 'red',
-          fontSize: '18px',
+          fontSize: '24px',
           fontWeight: 'bold',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          padding: '10px',
-          borderRadius: '8px'
         }}>
           {error}
         </div>
