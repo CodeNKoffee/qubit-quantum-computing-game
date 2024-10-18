@@ -8,13 +8,5 @@ export default defineConfig({
     hmr: {
       overlay: false // disable error overlay if you find it distracting
     }
-  },
-  optimizeDeps: {
-    exclude: ['/public/models/'] // Exclude the models directory from optimization and analysis
-  },
-  build: {
-    rollupOptions: {
-      external: ['/public/models/'] // Prevent Vite from bundling files in the models directory
-    }
   }
 })
