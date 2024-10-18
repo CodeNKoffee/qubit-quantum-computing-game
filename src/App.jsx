@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { initGame, updateGame, startGame } from './gameLogic';
-import { initFaceDetection, detectFace } from './faceDetection';
+import throttledGetMovement from './faceDetection';
+import bgImage from './assets/qubit-game-bg.png';
 
 function App() {
   const canvasRef = useRef(null);
@@ -23,7 +24,6 @@ function App() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const video = videoRef.current;
     const ctx = canvas.getContext('2d');
 
     canvas.width = canvasSize.width;
@@ -35,44 +35,35 @@ function App() {
     let lastFaceY = canvasSize.height / 2;
 
     const gameLoop = async () => {
-      if (gameState === 'playing' || gameState === 'gameover') {
-        if (gameState === 'playing') {
-          try {
-            const detections = await detectFace(video);
-            console.log('Detections:', detections);
-            if (detections && detections.length > 0) {
-              const faceY = detections[0].box.y;
-              const scaledFaceY = (faceY / videoRef.current.videoHeight) * canvasSize.height;
-              lastFaceY = scaledFaceY;
-            } else {
-              console.log('No face detected, using lastFaceY');
-            }
-          } catch (error) {
-            console.error('Face detection error:', error);
+      if (gameState === 'playing') {
+        try {
+          const movement = await throttledGetMovement();
+          if (movement !== 0) {
+            const adjustment = movement * 20;
+            lastFaceY += adjustment;
+            lastFaceY = Math.max(0, Math.min(lastFaceY, canvasSize.height));
           }
+        } catch (error) {
+          console.error('Face detection error:', error);
         }
-    
-        const newScore = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height, gameState);
-        if (newScore === null && gameState === 'playing') {
+
+        const gameStatus = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height);
+        
+        if (gameStatus.gameOver) {
           setGameState('gameover');
           cancelAnimationFrame(animationFrameId);
-        } else if (gameState === 'playing') {
-          setScore(newScore);
+        } else {
+          setScore(gameStatus.score);
         }
       }
-    
+
       if (gameState === 'playing' || gameState === 'gameover') {
         animationFrameId = requestAnimationFrame(gameLoop);
       }
     };
 
     if (gameState === 'playing') {
-      initFaceDetection(video).then(() => {
-        gameLoop();
-      }).catch(error => {
-        console.error('Failed to initialize face detection:', error);
-        gameLoop();
-      });
+      gameLoop();
     }
 
     return () => {
@@ -85,19 +76,9 @@ function App() {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       videoRef.current.srcObject = stream;
 
-      videoRef.current.onloadedmetadata = async () => {
-        try {
-          await initFaceDetection(videoRef.current);
-          setGameState('playing');
-          startGame(canvasSize.width, canvasSize.height);
-          console.log(videoRef.current.videoWidth, videoRef.current.videoHeight);
-        } catch (error) {
-          console.error('Error initializing face detection:', error);
-          setError('Face detection failed. The game will continue without it.');
-          alert('Face detection failed. The game will continue without it.');
-          setGameState('playing');
-          startGame(canvasSize.width, canvasSize.height);
-        }
+      videoRef.current.onloadedmetadata = () => {
+        setGameState('playing');
+        startGame(canvasSize.width, canvasSize.height);
       };
     } catch (error) {
       console.error('Camera access denied or error occurred:', error);
@@ -113,9 +94,10 @@ function App() {
       const tracks = stream.getTracks();
       tracks.forEach(track => track.stop());
     }
-  
-    setScore(0);  // Reset score on restart
-    setGameState('start');  // Return to start screen
+
+    setScore(0);
+    setGameState('start');
+    setError(null);
   };
 
   return (
@@ -128,8 +110,11 @@ function App() {
         ref={videoRef}
         style={{ position: 'absolute', top: 0, left: 0, width: '1px', height: '1px', opacity: 0 }}
       />
-
-      {/* Start Screen */}
+  
+      {(gameState === 'start' || gameState === 'gameover') && (
+        <img src={bgImage} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }} alt="Background" />
+      )}
+  
       {gameState === 'start' && (
         <div style={{
           position: 'absolute',
@@ -154,13 +139,11 @@ function App() {
               borderRadius: '8px',
               cursor: 'pointer'
             }}>
-            Entangle to Start
+            Start Game
           </button>
-          {error && <p style={{ color: 'red', fontSize: '16px' }}>{error}</p>}
         </div>
       )}
-
-      {/* Game Over Screen */}
+  
       {gameState === 'gameover' && (
         <div style={{
           position: 'absolute',
@@ -173,35 +156,51 @@ function App() {
           backgroundColor: 'rgba(0, 0, 0, 0.7)'
         }}>
           <h1 style={{ color: 'white', fontSize: '48px', marginBottom: '20px' }}>Game Over</h1>
-          <p style={{ color: 'white', fontSize: '24px', marginBottom: '20px' }}>Your Quantum Score: {score}</p>
+          <h2 style={{ color: 'white', fontSize: '32px', marginBottom: '20px' }}>Final Score: {score}</h2>
           <button
             onClick={handleRestart}
             style={{
               fontSize: '20px',
               padding: '10px 20px',
               margin: '20px',
-              backgroundColor: 'red',
+              backgroundColor: 'purple',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer'
             }}>
-            Play Again
+            Restart Game
           </button>
         </div>
       )}
-
-      {/* Score Display */}
+  
       {gameState === 'playing' && (
         <div style={{
           position: 'absolute',
-          top: '10px',
-          left: '10px',
+          top: '20px', left: '20px',
           color: 'white',
           fontSize: '24px',
-          textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
+          fontWeight: 'bold',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          padding: '10px',
+          borderRadius: '10px'
         }}>
           Quantum Score: {score}
+        </div>
+      )}
+  
+      {error && (
+        <div style={{
+          position: 'absolute',
+          top: '10px', left: '10px',
+          color: 'red',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          padding: '10px',
+          borderRadius: '8px'
+        }}>
+          {error}
         </div>
       )}
     </div>
