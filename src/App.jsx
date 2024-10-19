@@ -1,17 +1,18 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { initGame, updateGame, startGame } from './gameLogic';
 import bgImage from './assets/qubit-game-bg.png';
 
 function App() {
   const canvasRef = useRef(null);
-  const videoRef = useRef(null);
   const [gameState, setGameState] = useState('start');
   const [score, setScore] = useState(0);
   const [canvasSize, setCanvasSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [error, setError] = useState(null);
-  
-  // Move lastFrameData to a ref to maintain state across renders
-  const lastFrameDataRef = useRef(null);
+  const [isClapping, setIsClapping] = useState(false);
+
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const microphoneRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -24,43 +25,31 @@ function App() {
     };
   }, []);
 
-  const detectMotion = useCallback((video) => {
-    if (!video) return 0;
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+  const startAudioProcessing = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      microphoneRef.current = audioContextRef.current.createMediaStreamSource(stream);
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      analyserRef.current.fftSize = 2048;
 
-    const width = video.videoWidth;
-    const height = video.videoHeight;
+      const bufferLength = analyserRef.current.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
 
-    canvas.width = width;
-    canvas.height = height;
-    ctx.drawImage(video, 0, 0, width, height);
-    
-    const currentFrameData = ctx.getImageData(0, 0, width, height).data;
-    
-    if (lastFrameDataRef.current) {
-      const movement = calculateFrameDifference(currentFrameData, lastFrameDataRef.current);
-      lastFrameDataRef.current = currentFrameData; // Update lastFrameData
-      return movement;
+      microphoneRef.current.connect(analyserRef.current);
+
+      const detectClap = () => {
+        analyserRef.current.getByteTimeDomainData(dataArray);
+        let maxVolume = Math.max(...dataArray);
+        setIsClapping(maxVolume > 150);
+        requestAnimationFrame(detectClap);
+      };
+
+      detectClap();
+    } catch (error) {
+      console.error('Microphone access denied:', error);
+      setError('Microphone access is required to play the game.');
     }
-
-    lastFrameDataRef.current = currentFrameData; // Initialize on first frame
-    return 0; // No movement on the first frame
-  }, []);
-
-  const calculateFrameDifference = (currentData, lastData) => {
-    let totalDifference = 0;
-
-    for (let i = 0; i < currentData.length; i += 4) {
-      const diff =
-        Math.abs(currentData[i] - lastData[i]) +
-        Math.abs(currentData[i + 1] - lastData[i + 1]) +
-        Math.abs(currentData[i + 2] - lastData[i + 2]);
-      
-      if (diff > 50) totalDifference++; // Adjust threshold for sensitivity
-    }
-
-    return totalDifference > 1000 ? 1 : (totalDifference < 500 ? -1 : 0);
   };
 
   useEffect(() => {
@@ -70,21 +59,11 @@ function App() {
     canvas.width = canvasSize.width;
     canvas.height = canvasSize.height;
 
-    initGame(ctx, canvasSize.width, canvasSize.height);
-
     let animationFrameId;
-    let lastFaceY = canvasSize.height / 2;
 
     const gameLoop = () => {
       if (gameState === 'playing') {
-        const movement = detectMotion(videoRef.current);
-        if (movement !== 0) {
-          const adjustment = movement * 20; // Adjust speed multiplier
-          lastFaceY += adjustment;
-          lastFaceY = Math.max(0, Math.min(lastFaceY, canvasSize.height));
-        }
-
-        const gameStatus = updateGame(ctx, lastFaceY, canvasSize.width, canvasSize.height);
+        const gameStatus = updateGame(ctx, isClapping, canvasSize.width, canvasSize.height);
         
         if (gameStatus.gameOver) {
           setGameState('gameover');
@@ -93,10 +72,8 @@ function App() {
           setScore(gameStatus.score);
         }
       }
-
-      if (gameState === 'playing' || gameState === 'gameover') {
-        animationFrameId = requestAnimationFrame(gameLoop);
-      }
+      
+      animationFrameId = requestAnimationFrame(gameLoop);
     };
 
     if (gameState === 'playing') {
@@ -106,32 +83,24 @@ function App() {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [gameState, canvasSize, detectMotion]);
+  }, [gameState, canvasSize, isClapping]);
 
   const handleStartClick = async () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoRef.current.srcObject = stream;
-
-      videoRef.current.onloadedmetadata = () => {
-        setGameState('playing');
-        startGame(canvasSize.width, canvasSize.height);
-      };
-    } catch (error) {
-      console.error('Camera access denied or error occurred:', error);
-      setError('Camera access is required to play the game. The game will start without face detection.');
-      setGameState('playing');
+      await initGame(ctx, canvasSize.width, canvasSize.height);
       startGame(canvasSize.width, canvasSize.height);
+      setGameState('playing');
+      startAudioProcessing();
+    } catch (error) {
+      console.error('Failed to start game:', error);
+      setError('Failed to start the game. Please try again.');
     }
   };
 
   const handleRestart = () => {
-    const stream = videoRef.current.srcObject;
-    if (stream) {
-      const tracks = stream.getTracks();
-      tracks.forEach(track => track.stop());
-    }
-
     setScore(0);
     setGameState('start');
     setError(null);
@@ -142,11 +111,6 @@ function App() {
       <canvas
         ref={canvasRef}
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-      />
-      <video
-        ref={videoRef}
-        style={{ position: 'absolute', top: 0, left: 0, width: '1px', height: '1px', opacity: 0 }}
-        autoPlay
       />
   
       {(gameState === 'start' || gameState === 'gameover') && (
