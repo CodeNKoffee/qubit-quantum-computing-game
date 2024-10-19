@@ -10,6 +10,7 @@ function App() {
   const [canvasSize, setCanvasSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [error, setError] = useState(null);
   const [isClapping, setIsClapping] = useState(false);
+  const [mode, setMode] = useState(null);
 
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
@@ -86,15 +87,27 @@ function App() {
     };
   }, [gameState, canvasSize, isClapping]);
 
-  const handleStartClick = async () => {
+  const handleGameModeClick = () => {
+    setGameState('mode');
+  }
+
+  const handleStartClick = async (selectedMode) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     
     try {
       await initGame(ctx, canvasSize.width, canvasSize.height);
       startGame(canvasSize.width, canvasSize.height);
+      setMode(selectedMode);
       setGameState('playing');
-      startAudioProcessing();
+      
+      if (mode === 'sound') {
+        startAudioProcessing();
+      } else {
+        alert('Oops! You\'ve hit a dead-end. This mode is still under construction.');
+        setGameState('mode');
+        return;
+      }
     } catch (error) {
       console.error('Failed to start game:', error);
       setError('Failed to start the game. Please try again.');
@@ -114,7 +127,7 @@ function App() {
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       />
   
-      {(gameState === 'start' || gameState === 'gameover') && (
+      {(gameState === 'start' || gameState === 'gameover' || gameState === 'mode') && (
         <img src={bgImage} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }} alt="Background" />
       )}
   
@@ -132,11 +145,45 @@ function App() {
         }}>
           <h1 className="game-header">Quantum Flappy Face</h1>
           <button
-            onClick={handleStartClick}
+            onClick={handleGameModeClick}
             className="game-btn"
           >
             Start Game
           </button>
+        </div>
+      )}
+
+      {gameState === 'mode' && (
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0,
+          width: '100%', height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          gap: 56
+        }}>
+          <h2 className="game-header">Select Mode</h2>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 20
+          }}>
+            <button
+              onClick={() => handleStartClick('sound')}
+              className="game-btn quantum-theme"
+            >
+              Sound Mode
+            </button>
+            <button
+              onClick={() => handleStartClick('smiling')}
+              className="game-btn quantum-theme"
+            >
+              Smiling Mode
+            </button>
+          </div>
         </div>
       )}
   
