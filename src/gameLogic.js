@@ -1,12 +1,15 @@
 import bgImage from './assets/qubit-game-bg.png';
 import mascottImage from './assets/qubit-mascott.png';
 import pipeImage from './assets/qubit-game-pipe.png';
+import gameOverSoundFile from './assets/533034__evretro__8-bit-game-over-soundtune.wav';
 
 let qubit, pipes, gameWidth, gameHeight, bg, mascottImg, pipeImg, score;
 const gravity = 0.6;
 const jumpVelocity = -12;
 const pipeSpeed = 5;
 const pipeSpacing = 300;
+let gameOverSound;
+let gameOverSoundPlayed = false;
 
 export function initGame(ctx, width, height) {
   gameWidth = width;
@@ -19,6 +22,9 @@ export function initGame(ctx, width, height) {
   mascottImg.src = mascottImage;
   pipeImg = new Image();
   pipeImg.src = pipeImage;
+
+  // Initialize the audio
+  gameOverSound = new Audio(gameOverSoundFile);
 
   return new Promise((resolve, reject) => {
     Promise.all([
@@ -117,6 +123,12 @@ export function updateGame(ctx, isClapping, width, height) {
     if (pipes[i].x + pipeWidth < 0) {
       pipes.splice(i, 1);
     }
+  }
+
+  // Play game over sound if game is over and it hasn't played yet
+  if (gameOver && !gameOverSoundPlayed) {
+    gameOverSound.play().catch(error => console.error('Error playing sound:', error));
+    gameOverSoundPlayed = true;
   }
 
   // Draw score

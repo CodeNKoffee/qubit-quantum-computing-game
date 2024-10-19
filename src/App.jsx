@@ -10,7 +10,7 @@ function App() {
   const [canvasSize, setCanvasSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [error, setError] = useState(null);
   const [isClapping, setIsClapping] = useState(false);
-  const [mode, setMode] = useState(null);
+  const [modeDescription, setModeDescription] = useState(null);
 
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
@@ -91,6 +91,14 @@ function App() {
     setGameState('mode');
   }
 
+  const handleModeInspection = (selectedModeDescription) => {
+    if (selectedModeDescription === 'sound') {
+      setModeDescription('Use your voice to control the qubit! Clap or make loud noises to move the qubit upward—stay quiet, and watch it fall.');
+    } else if (selectedModeDescription === 'smiling') {
+      setModeDescription('Your smile powers the qubit! The bigger your smile, the higher the qubit flies. Frown, and it slowly drifts down.');
+    }
+  }
+
   const handleStartClick = async (selectedMode) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -98,10 +106,9 @@ function App() {
     try {
       await initGame(ctx, canvasSize.width, canvasSize.height);
       startGame(canvasSize.width, canvasSize.height);
-      setMode(selectedMode);
       setGameState('playing');
       
-      if (mode === 'sound') {
+      if (selectedMode === 'sound') {
         startAudioProcessing();
       } else {
         alert('Oops! You\'ve hit a dead-end. This mode is still under construction.');
@@ -169,21 +176,27 @@ function App() {
           <div style={{
             display: 'flex',
             flexDirection: 'row',
-            gap: 20
+            gap: 20,
           }}>
             <button
+              onMouseOver={() => handleModeInspection('sound')}
               onClick={() => handleStartClick('sound')}
-              className="game-btn quantum-theme"
+              className="game-btn quantum-theme w-56"
+              title="Use your voice to control the qubit! Clap or make loud noises to move the qubit upward—stay quiet, and watch it fall."
             >
-              Sound Mode
+              Quantum Pulse
             </button>
+
             <button
+              onMouseOver={() => handleModeInspection('smiling')}
               onClick={() => handleStartClick('smiling')}
-              className="game-btn quantum-theme"
+              className="game-btn quantum-theme w-56"
+              title="Your smile powers the qubit! The bigger your smile, the higher the qubit flies. Frown, and it slowly drifts down."
             >
-              Smiling Mode
+              Grin Gravity
             </button>
           </div>
+          <p className={`font-bold absolute bottom-5 bg-white ${modeDescription ? "opacity-75" : "opacity-0"} rounded-2xl p-8`}>{modeDescription}</p>
         </div>
       )}
   
