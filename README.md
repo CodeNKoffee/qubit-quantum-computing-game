@@ -6,7 +6,7 @@
 
 [Insert a GIF or screenshot of your game here once it's developed]
 
-Quantum Fly is an innovative, interactive game that combines the addictive gameplay of Flappy Bird with cutting-edge face detection technology and quantum computing themes. Perfect for engaging participants at tech booths or introducing quantum computing concepts in a fun, accessible way.
+Quantum Fly is an innovative, interactive game that combines the addictive gameplay of Flappy Bird with cutting-edge sound detection technology and (soon to be implemented smiling technology) quantum computing themes. Perfect for engaging participants at tech booths or introducing quantum computing concepts in a fun, accessible way.
 
 ## Table of Contents
 
