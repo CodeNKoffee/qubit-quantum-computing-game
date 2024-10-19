@@ -114,6 +114,13 @@ quantum-flappy-face/
 - Update assets in `public/assets/` to change the game's appearance
 - Tweak face detection sensitivity in `src/utils/faceDetection.js`
 
+## Acknowledgments
+
+- **Intro Music:** ["8 Bit Game Intro Loop.wav"](https://freesound.org/s/520937/) by Mrthenoronha – Licensed under [Attribution NonCommercial 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
+- **Game Over Sound Effect:** ["8-bit Game Over Sound/Tune"](https://freesound.org/s/533034/) by EVRetro – Licensed under [Creative Commons 0](https://creativecommons.org/publicdomain/zero/1.0/).
+
+Special thanks to these creators for their awesome contributions, which help make Quantum Fly even more engaging!
+
 ## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details.
