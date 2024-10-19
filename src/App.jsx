@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { initGame, updateGame, startGame } from './gameLogic';
 import bgImage from './assets/qubit-game-bg.png';
+import gameIntroSoundFile from './assets/520937__mrthenoronha__8-bit-game-intro-loop.wav';
 import "./App.css"
 
 function App() {
@@ -11,10 +12,12 @@ function App() {
   const [error, setError] = useState(null);
   const [isClapping, setIsClapping] = useState(false);
   const [modeDescription, setModeDescription] = useState(null);
+  const [musicInitialized, setMusicInitialized] = useState(false);
 
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const microphoneRef = useRef(null);
+  const introMusicRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -26,6 +29,53 @@ function App() {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  useEffect(() => {
+    const initializeAudio = () => {
+      if (!musicInitialized) {
+        introMusicRef.current = new Audio(gameIntroSoundFile);
+        introMusicRef.current.loop = true;
+        setMusicInitialized(true);
+      }
+    };
+
+    const playIntroMusic = () => {
+      if (introMusicRef.current && !['playing', 'gameover'].includes(gameState)) {
+        introMusicRef.current.play().catch(error => console.error('Error playing intro music:', error));
+      }
+    };
+
+    const pauseIntroMusic = () => {
+      if (introMusicRef.current) {
+        introMusicRef.current.pause();
+      }
+    };
+
+    const handleInteraction = () => {
+      initializeAudio();
+      playIntroMusic();
+      window.removeEventListener('mousemove', handleInteraction);
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('keydown', handleInteraction);
+    };
+
+    window.addEventListener('mousemove', handleInteraction);
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('keydown', handleInteraction);
+
+    if (['playing', 'gameover'].includes(gameState)) {
+      pauseIntroMusic();
+    } else if (musicInitialized) {
+      playIntroMusic();
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleInteraction);
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('keydown', handleInteraction);
+      pauseIntroMusic();
+    };
+  }, [gameState, musicInitialized]);
 
   const startAudioProcessing = async () => {
     try {
