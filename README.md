@@ -1,12 +1,12 @@
-# Quantum Flappy Face
+# Quantum Fly
 
-![Quantum Flappy Face Banner](./assets/quantum-flappy-face-banner.png)
+![Quantum Fly Banner](./assets/quantum-flappy-face-banner.png)
 
 ## Project Preview
 
 [Insert a GIF or screenshot of your game here once it's developed]
 
-Quantum Flappy Face is an innovative, interactive game that combines the addictive gameplay of Flappy Bird with cutting-edge face detection technology and quantum computing themes. Perfect for engaging participants at tech booths or introducing quantum computing concepts in a fun, accessible way.
+Quantum Fly is an innovative, interactive game that combines the addictive gameplay of Flappy Bird with cutting-edge face detection technology and quantum computing themes. Perfect for engaging participants at tech booths or introducing quantum computing concepts in a fun, accessible way.
 
 ## Table of Contents
 

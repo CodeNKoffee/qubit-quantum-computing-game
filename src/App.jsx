@@ -200,7 +200,7 @@ function App() {
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
           gap: 56
         }}>
-          <h1 className="game-header">Quantum Flappy Face</h1>
+          <h1 className="game-header">Quantum Fly</h1>
           <button
             onClick={handleGameModeClick}
             className="game-btn"
