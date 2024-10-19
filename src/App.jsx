@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { initGame, updateGame, startGame } from './gameLogic';
 import bgImage from './assets/qubit-game-bg.png';
+import "./App.css"
 
 function App() {
   const canvasRef = useRef(null);
@@ -126,21 +127,14 @@ function App() {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.7)'
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          gap: 56
         }}>
-          <h1 style={{ color: 'white', fontSize: '48px', marginBottom: '20px' }}>Quantum Flappy Face</h1>
+          <h1 className="game-header">Quantum Flappy Face</h1>
           <button
             onClick={handleStartClick}
-            style={{
-              fontSize: '20px',
-              padding: '10px 20px',
-              margin: '20px',
-              backgroundColor: 'purple',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer'
-            }}>
+            className="game-btn"
+          >
             Start Game
           </button>
         </div>
@@ -155,22 +149,15 @@ function App() {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.7)'
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          gap: 24
         }}>
-          <h1 style={{ color: 'white', fontSize: '48px', marginBottom: '20px' }}>Game Over</h1>
-          <h2 style={{ color: 'white', fontSize: '32px', marginBottom: '20px' }}>Final Score: {score}</h2>
+          <h1 className="game-header">Game Over</h1>
+          <h2 className="game-subheader">Final Score: {score}</h2>
           <button
             onClick={handleRestart}
-            style={{
-              fontSize: '20px',
-              padding: '10px 20px',
-              margin: '20px',
-              backgroundColor: 'purple',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer'
-            }}>
+            className="game-btn"
+          >
             Restart Game
           </button>
         </div>
