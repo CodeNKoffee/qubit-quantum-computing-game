@@ -47,6 +47,7 @@ export function startGame(width, height) {
   qubit = { x: 150, y: height / 2, width: 75, height: 60 };
   pipes = [];
   score = 0;
+  gameOverSoundPlayed = false;
 }
 
 export function updateGame(ctx, isClapping, width, height) {
