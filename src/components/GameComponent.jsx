@@ -188,11 +188,11 @@
       <div className="relative w-screen h-screen overflow-hidden">
         <canvas
           ref={canvasRef}
-          className="absolute top-0 left-0 w-full h-full"
+          className="absolute top-0 left-0 w-full h-full z-10"
         />
 
         {/* Background Image */}
-        {(gameState === "start" || gameState === "gameover" || gameState === "mode") && (
+        {(gameState === "start" || gameState === "gameover" || gameState === "mode" || gameState === "playing") && (
           <img
             src={bgImage}
             className="absolute top-0 left-0 w-full h-full -z-10"
@@ -329,8 +329,8 @@
 
         {/* Countdown Overlay */}
         {countdown && (
-          <div className="absolute inset-0 flex items-center justify-center z-50">
-            <div className="text-8xl font-bold text-white animate-pulse">
+          <div className="absolute inset-0 flex items-center justify-center z-40">
+            <div className="text-8xl font-bold text-white animate-pulse drop-shadow-lg">
               {countdown}
             </div>
           </div>
@@ -406,7 +406,7 @@
         )}
 
         {gameState === "playing" && (
-          <div className="absolute top-5 left-5 text-white text-2xl font-bold bg-black/50 p-3 rounded-2xl">
+          <div className="absolute top-5 left-5 text-white text-2xl font-bold bg-black/50 p-3 rounded-2xl z-20">
             Quantum Score: {score}
           </div>
         )}
