@@ -1,11 +1,12 @@
 import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import quantumCoinIcon from '../assets/vbuck.png';
 import bgImage from '../assets/qubit-game-bg.png';
-import PropTypes from 'prop-types';
 
-function QuantumShop({ isGuest }) {
+function QuantumShop() {
   const navigate = useNavigate();
+  const { isGuest } = useSelector(state => state.user);
 
   const packages = [
     {
@@ -127,9 +128,5 @@ function QuantumShop({ isGuest }) {
     </div>
   );
 }
-
-QuantumShop.propTypes = {
-  isGuest: PropTypes.bool.isRequired
-};
 
 export default QuantumShop; 

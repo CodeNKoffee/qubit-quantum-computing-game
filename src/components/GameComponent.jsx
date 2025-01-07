@@ -1,13 +1,23 @@
 import { useRef, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Pause, Settings, ShoppingBag, Trophy, UserCircle } from "lucide-react";
+import { Pause, Settings, ShoppingBag, Trophy, UserCircle, LogOut } from "lucide-react";
 import { initGame, updateGame, startGame } from "../gameLogic";
 import PropTypes from 'prop-types';
 import AuthModal from "./AuthModal";
 import LeaderboardModal from "./LeaderboardModal";
+import { useDispatch, useSelector } from 'react-redux';
+import { setUser, setGuest, signOut } from '../store/userSlice';
+import { setMusicEnabled } from '../store/settingsSlice';
+import { getAuth, signOut as firebaseSignOut } from 'firebase/auth';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
-function GameComponent({ bgImage, gameIntroSoundFile, setIsGuest }) {
+function GameComponent({ bgImage, gameIntroSoundFile }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, isGuest } = useSelector(state => state.user);
+  const { musicEnabled } = useSelector(state => state.settings);
+  
   const canvasRef = useRef(null);
   const [gameState, setGameState] = useState("start");
   const [score, setScore] = useState(0);
@@ -20,13 +30,10 @@ function GameComponent({ bgImage, gameIntroSoundFile, setIsGuest }) {
   const [modeDescription, setModeDescription] = useState(null);
   const [musicInitialized, setMusicInitialized] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [musicEnabled, setMusicEnabled] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
   const [showPauseModal, setShowPauseModal] = useState(false);
   const [countdown, setCountdown] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [user, setUser] = useState(null);
-  const [isGuestLocal, setIsGuestLocal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const audioContextRef = useRef(null);
@@ -191,36 +198,53 @@ function GameComponent({ bgImage, gameIntroSoundFile, setIsGuest }) {
   };
 
   const handleStartGameClick = () => {
-    if (!user && !isGuestLocal) {
+    if (!user && !isGuest) {
       setShowAuthModal(true);
     } else {
       setGameState("mode");
     }
   };
 
-  const handleAuthSuccess = (user) => {
-    setIsGuestLocal(false);
-    setIsGuest(true);
-    setUser(user);
+  const handleAuthSuccess = (userData) => {
+    dispatch(setUser(userData));
     setShowAuthModal(false);
     setGameState("mode");
   };
 
   const handleGuestPlay = () => {
-    setIsGuestLocal(true);
-    setIsGuest(true);
-    setUser(null);
+    dispatch(setGuest(true));
     setShowAuthModal(false);
     setGameState("mode");
   };
 
+  const handleSignOut = async () => {
+    const auth = getAuth();
+    try {
+      await firebaseSignOut(auth);
+      dispatch(signOut());
+      setGameState("start");
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  // Update high score when game ends
   useEffect(() => {
-    return () => {
-      setIsGuestLocal(false);
-      setIsGuest(false);
-      setUser(null);
+    const updateHighScore = async () => {
+      if (gameState === "gameover" && user && score > 0) {
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          await updateDoc(userRef, {
+            highScore: Math.max(score, user.highScore || 0)
+          });
+        } catch (error) {
+          console.error('Error updating high score:', error);
+        }
+      }
     };
-  }, [setIsGuest]);
+
+    updateHighScore();
+  }, [gameState, user, score]);
 
   return (
     <div className="relative w-screen h-screen overflow-hidden">
@@ -241,24 +265,41 @@ function GameComponent({ bgImage, gameIntroSoundFile, setIsGuest }) {
       {/* Top Right Icons - Updated */}
       {["start", "mode", "playing", "gameover"].includes(gameState) && (
         <div className="absolute top-4 right-4 flex gap-4 z-40">
-          {/* User Profile Indicator */}
-          <div className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-2">
+          {/* User Profile Indicator with Sign Out */}
+          <div className="flex items-center gap-2">
             {user ? (
-              <>
+              <div className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-2">
                 <img 
                   src={user.photoURL} 
                   alt="" 
                   className="w-6 h-6 rounded-full"
                 />
                 <span className="text-white text-sm hidden sm:inline">{user.displayName}</span>
-              </>
+                <button
+                  onClick={handleSignOut}
+                  className="p-1 hover:bg-white/10 rounded-full transition-colors ml-2"
+                >
+                  <LogOut className="w-4 h-4 text-white" />
+                </button>
+              </div>
             ) : (
-              <>
+              <button
+                onClick={() => !isGuest && setShowAuthModal(true)}
+                className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-2 hover:bg-white/30 transition-colors"
+              >
                 <UserCircle className="w-6 h-6 text-white" />
                 <span className="text-white text-sm hidden sm:inline">
-                  {isGuestLocal ? 'Guest' : 'Sign In'}
+                  {isGuest ? 'Guest' : 'Sign In'}
                 </span>
-              </>
+                {isGuest && (
+                  <button
+                    onClick={() => dispatch(setGuest(false))}
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors ml-2"
+                  >
+                    <LogOut className="w-4 h-4 text-white" />
+                  </button>
+                )}
+              </button>
             )}
           </div>
 
@@ -306,7 +347,7 @@ function GameComponent({ bgImage, gameIntroSoundFile, setIsGuest }) {
         </div>
       )}
 
-      {/* Settings Modal */}
+      {/* Settings Modal - Updated */}
       {showSettings && (
         <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-gradient-to-b from-gray-900 to-black w-full max-w-md rounded-2xl p-8 mx-4 border border-white/20">
@@ -317,7 +358,7 @@ function GameComponent({ bgImage, gameIntroSoundFile, setIsGuest }) {
               <div className="flex items-center justify-between">
                 <span className="text-white text-lg">Music</span>
                 <button
-                  onClick={() => setMusicEnabled(!musicEnabled)}
+                  onClick={() => dispatch(setMusicEnabled(!musicEnabled))}
                   className={`px-6 py-2 rounded-lg font-bold transition-colors ${
                     musicEnabled 
                       ? "bg-blue-600 hover:bg-blue-700" 
@@ -475,7 +516,7 @@ function GameComponent({ bgImage, gameIntroSoundFile, setIsGuest }) {
               onClick={() => setShowLeaderboard(true)}
               className="game-btn quantum-theme"
             >
-              View Leaderboard
+              View Global Leaderboard
             </button>
           </div>
         </div>
@@ -513,8 +554,7 @@ function GameComponent({ bgImage, gameIntroSoundFile, setIsGuest }) {
 
 GameComponent.propTypes = {
   bgImage: PropTypes.string.isRequired,
-  gameIntroSoundFile: PropTypes.string.isRequired,
-  setIsGuest: PropTypes.func.isRequired
+  gameIntroSoundFile: PropTypes.string.isRequired
 };
 
 export default GameComponent;
