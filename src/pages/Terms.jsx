@@ -1,8 +1,10 @@
 import LegalPageWrapper from "../components/LegalPageWrapper";
+import bgImage from "../assets/qubit-game-bg.png";
 
 function Terms() {
   return (
-    <LegalPageWrapper title="Terms of Services">
+    <LegalPageWrapper bgImage={bgImage}>
+      <h1 className="text-3xl font-bold mb-6">Terms of Service</h1>
       <section>
         <h2 className="text-xl font-semibold mb-4">1. Introduction</h2>
         <p className="mb-6">

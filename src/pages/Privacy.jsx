@@ -1,8 +1,10 @@
 import LegalPageWrapper from "../components/LegalPageWrapper";
+import bgImage from "../assets/qubit-game-bg.png";
 
 function Privacy() {
   return (
-    <LegalPageWrapper title="Privacy Notice">
+    <LegalPageWrapper bgImage={bgImage}>
+      <h1 className="text-3xl font-bold mb-6">Privacy Notice</h1>
       <section>
         <h2 className="text-xl font-semibold mb-4">1. Information Collection</h2>
         <p className="mb-4">
