@@ -38,7 +38,7 @@ function QuantumShop() {
       {/* Background Image */}
       <img
         src={bgImage}
-        className="absolute top-0 left-0 w-full h-full object-cover -z-10"
+        className="absolute top-0 left-0 w-full h-full -z-10"
         alt="Background"
       />
 
@@ -70,33 +70,39 @@ function QuantumShop() {
                   </div>
                 )}
                 
-                <div className="bg-gradient-to-b from-purple-900/50 to-black p-4">
-                  {/* Coin Amount */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <img 
-                      src={quantumCoinIcon} 
-                      alt="Quantum Coin" 
-                      className="w-6 h-6"
-                    />
-                    <span className="text-2xl font-bold text-white">
-                      {pkg.coins.toLocaleString()}
-                    </span>
-                  </div>
-
-                  {/* Bonus */}
-                  {pkg.bonus > 0 && (
-                    <div className="text-green-400 text-sm mb-4">
-                      +{pkg.bonus.toLocaleString()} Bonus
+                <div className="bg-gradient-to-b from-purple-900/50 to-black p-4 flex flex-col h-full">
+                  {/* Content Container */}
+                  <div className="flex-grow">
+                    {/* Coin Amount */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <img 
+                        src={quantumCoinIcon} 
+                        alt="Quantum Coin" 
+                        className="w-6 h-6"
+                      />
+                      <span className="text-2xl font-bold text-white">
+                        {pkg.coins.toLocaleString()}
+                      </span>
                     </div>
-                  )}
 
-                  {/* Price */}
-                  <div className="text-white font-bold mb-4">
-                    ${pkg.price}
+                    {/* Bonus */}
+                    {pkg.bonus > 0 && (
+                      <div className="text-green-400 text-sm mb-4">
+                        +{pkg.bonus.toLocaleString()} Bonus
+                      </div>
+                    )}
+
+                    {/* Price */}
+                    <div className="text-white font-bold">
+                      ${pkg.price}
+                    </div>
                   </div>
 
-                  {/* Purchase Button */}
-                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                  {/* Purchase Button - Always at bottom */}
+                  <button 
+                    onClick={() => alert("This feature is currently under rapid construction and maintenance. Check back soon!")}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors mt-4"
+                  >
                     Purchase
                   </button>
                 </div>
