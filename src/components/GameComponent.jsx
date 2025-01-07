@@ -146,7 +146,7 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
       if (gameState === "playing" && !isPaused) {
         const gameStatus = updateGame(ctx, isClapping, canvasSize.width, canvasSize.height);
         if (gameStatus.gameOver) {
-          setGameState("gameover");
+          handleGameOver();
           cancelAnimationFrame(animationFrameId);
         } else {
           setScore(gameStatus.score);

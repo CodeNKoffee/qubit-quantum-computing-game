@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import GameComponent from './components/GameComponent';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
@@ -10,8 +9,6 @@ import gameIntroSoundFile from './assets/520937__mrthenoronha__8-bit-game-intro-
 import './App.css';
 
 function App() {
-  const { isGuest } = useSelector(state => state.user);
-
   return (
     <Router>
       <Routes>

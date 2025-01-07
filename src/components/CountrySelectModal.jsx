@@ -3,40 +3,7 @@ import PropTypes from 'prop-types';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import countriesBanner from '../assets/countries-banner.png';
-
-// List of countries with their flags
-const countries = [
-  { code: 'PS', name: 'Palestine', flag: '🇵🇸' },
-  { code: 'US', name: 'United States', flag: '🇺🇸' },
-  { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
-  { code: 'DE', name: 'Germany', flag: '🇩🇪' },
-  { code: 'FR', name: 'France', flag: '🇫🇷' },
-  { code: 'JP', name: 'Japan', flag: '🇯🇵' },
-  { code: 'KR', name: 'South Korea', flag: '🇰🇷' },
-  { code: 'BR', name: 'Brazil', flag: '🇧🇷' },
-  { code: 'CN', name: 'China', flag: '🇨🇳' },
-  { code: 'CA', name: 'Canada', flag: '🇨🇦' },
-  { code: 'AU', name: 'Australia', flag: '🇦🇺' },
-  { code: 'ES', name: 'Spain', flag: '🇪🇸' },
-  { code: 'IT', name: 'Italy', flag: '🇮🇹' },
-  { code: 'RU', name: 'Russia', flag: '🇷🇺' },
-  { code: 'IN', name: 'India', flag: '🇮🇳' },
-  { code: 'TR', name: 'Turkey', flag: '🇹🇷' },
-  { code: 'SA', name: 'Saudi Arabia', flag: '🇸🇦' },
-  { code: 'AE', name: 'UAE', flag: '🇦🇪' },
-  { code: 'EG', name: 'Egypt', flag: '🇪🇬' },
-  { code: 'MA', name: 'Morocco', flag: '🇲🇦' },
-  { code: 'NG', name: 'Nigeria', flag: '🇳🇬' },
-  { code: 'ZA', name: 'South Africa', flag: '🇿🇦' },
-  { code: 'MX', name: 'Mexico', flag: '🇲🇽' },
-  { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
-  { code: 'ID', name: 'Indonesia', flag: '🇮🇩' },
-  { code: 'MY', name: 'Malaysia', flag: '🇲🇾' },
-  { code: 'PK', name: 'Pakistan', flag: '🇵🇰' },
-  { code: 'BD', name: 'Bangladesh', flag: '🇧🇩' },
-  { code: 'VN', name: 'Vietnam', flag: '🇻🇳' },
-  { code: 'TH', name: 'Thailand', flag: '🇹🇭' }
-].sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
+import { countries } from '../../constants';
 
 function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
   const [selectedCountry, setSelectedCountry] = useState(null);
@@ -77,7 +44,7 @@ function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
           
           <p className="text-white/80 mb-8">
             Quantum Fly is more than just a game - it&apos;s a worldwide competition where players 
-            represent their nations in the quest for quantum supremacy! Choose your country 
+            represent their nations in the quest for quantum supremacy in Egypt! Choose your country 
             and join thousands of players competing for global recognition.
           </p>
 
