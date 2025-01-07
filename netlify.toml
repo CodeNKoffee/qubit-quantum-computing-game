@@ -1,3 +1,7 @@
-# Delete or comment out this section
 # [[plugins]]
 # package = "@21yunbox/netlify-plugin-21yunbox-deploy-to-china-cdn"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
