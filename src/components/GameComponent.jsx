@@ -271,10 +271,16 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
 
   // Handle game over and country prompt
   const handleGameOver = async () => {
-    if (user && !user.country && countryPromptCount < 3) {
-      setShowCountrySelect(true);
-    }
     setGameState("gameover");
+    setShowLeaderboard(true);
+    
+    // If user needs to select country, show the prompt after leaderboard is closed
+    if (user && !user.country && countryPromptCount < 3) {
+      const timer = setTimeout(() => {
+        setShowCountrySelect(true);
+      }, 1000); // 1 second delay after leaderboard is closed
+      return () => clearTimeout(timer);
+    }
   };
 
   return (

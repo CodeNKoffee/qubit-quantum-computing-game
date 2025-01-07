@@ -5,6 +5,7 @@ import { db } from '../firebase';
 
 function LeaderboardModal({ onClose, currentScore }) {
   const [scores, setScores] = useState([]);
+  const [leadingCountry, setLeadingCountry] = useState(null);
 
   useEffect(() => {
     const fetchScores = async () => {
@@ -20,6 +21,35 @@ function LeaderboardModal({ onClose, currentScore }) {
           ...doc.data()
         }));
         setScores(scoresData);
+
+        // Find the leading country
+        const countryScores = {};
+        scoresData.forEach(score => {
+          if (score.country) {
+            const countryName = score.country.name;
+            if (!countryScores[countryName]) {
+              countryScores[countryName] = {
+                totalScore: 0,
+                count: 0,
+                flag: score.country.flag
+              };
+            }
+            countryScores[countryName].totalScore += score.highScore;
+            countryScores[countryName].count += 1;
+          }
+        });
+
+        // Calculate average score per country and find the leader
+        let highestAvg = 0;
+        let leader = null;
+        Object.entries(countryScores).forEach(([country, data]) => {
+          const avg = data.totalScore / data.count;
+          if (avg > highestAvg) {
+            highestAvg = avg;
+            leader = { name: country, flag: data.flag };
+          }
+        });
+        setLeadingCountry(leader);
       } catch (error) {
         console.error('Error fetching scores:', error);
       }
@@ -31,7 +61,15 @@ function LeaderboardModal({ onClose, currentScore }) {
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-gradient-to-b from-gray-900 to-black w-full max-w-3xl rounded-2xl p-8 mx-4 border border-white/20">
-        <h2 className="text-3xl font-bold text-white mb-8">Global Leaderboard 🏆</h2>
+        <div className="flex flex-col gap-2 mb-8">
+          <h2 className="text-3xl font-bold text-white">Global Leaderboard 🏆</h2>
+          {leadingCountry && (
+            <p className="text-white/80 text-lg">
+              <span className="text-2xl">{leadingCountry.flag}</span>{" "}
+              {leadingCountry.name} is leading this world cup!
+            </p>
+          )}
+        </div>
         
         {currentScore !== null && (
           <div className="mb-8 p-4 bg-white/5 rounded-lg">
