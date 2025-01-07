@@ -5,11 +5,14 @@ import { X } from 'lucide-react';
 import PropTypes from 'prop-types';
 import GoogleIcon from '../assets/google-icon.png';
 import { useState } from 'react';
+import CountrySelectModal from './CountrySelectModal';
 
 function AuthModal({ onClose, onSuccess, onGuestPlay }) {
   const auth = getAuth();
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showCountrySelect, setShowCountrySelect] = useState(false);
+  const [newUser, setNewUser] = useState(null);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -19,7 +22,7 @@ function AuthModal({ onClose, onSuccess, onGuestPlay }) {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       
-      console.log("Sign-in successful:", user.email); // Debug log
+      console.log("Sign-in successful:", user.email);
       
       try {
         // Check if user exists in Firestore
@@ -27,7 +30,7 @@ function AuthModal({ onClose, onSuccess, onGuestPlay }) {
         const userDoc = await getDoc(userDocRef);
         
         if (!userDoc.exists()) {
-          console.log("Creating new user document"); // Debug log
+          console.log("Creating new user document");
           
           // Create new user document with minimal data first
           const userData = {
@@ -42,9 +45,14 @@ function AuthModal({ onClose, onSuccess, onGuestPlay }) {
 
           await setDoc(userDocRef, userData);
           console.log("User document created successfully");
+          
+          // Show country select for new users
+          setNewUser(user);
+          setShowCountrySelect(true);
+        } else {
+          // Existing user, proceed normally
+          onSuccess(user);
         }
-        
-        onSuccess(user);
       } catch (dbError) {
         console.error('Database error:', dbError);
         setError('Failed to create user profile. Please try again.');
@@ -77,6 +85,18 @@ function AuthModal({ onClose, onSuccess, onGuestPlay }) {
       setIsLoading(false);
     }
   };
+
+  if (showCountrySelect && newUser) {
+    return (
+      <CountrySelectModal
+        userId={newUser.uid}
+        onClose={() => {
+          setShowCountrySelect(false);
+          onSuccess(newUser);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">

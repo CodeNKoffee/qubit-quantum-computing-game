@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Pause, Settings, ShoppingBag, Trophy, UserCircle, LogOut } from "lucide-react";
+import { Pause, Settings, ShoppingBag, Trophy, UserCircle, LogOut, Globe } from "lucide-react";
 import { initGame, updateGame, startGame } from "../gameLogic";
 import PropTypes from 'prop-types';
 import AuthModal from "./AuthModal";
@@ -9,8 +9,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setUser, setGuest, signOut } from '../store/userSlice';
 import { setMusicEnabled } from '../store/settingsSlice';
 import { getAuth, signOut as firebaseSignOut } from 'firebase/auth';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import CountrySelectModal from "./CountrySelectModal";
 
 function GameComponent({ bgImage, gameIntroSoundFile }) {
   const navigate = useNavigate();
@@ -35,6 +36,8 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
   const [countdown, setCountdown] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showCountrySelect, setShowCountrySelect] = useState(false);
+  const [countryPromptCount, setCountryPromptCount] = useState(0);
 
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
@@ -205,10 +208,21 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
     }
   };
 
-  const handleAuthSuccess = (userData) => {
+  const handleAuthSuccess = async (userData) => {
     dispatch(setUser(userData));
     setShowAuthModal(false);
-    setGameState("mode");
+    
+    // Check if user has a country
+    const userDoc = await getDoc(doc(db, 'users', userData.uid));
+    const userCountry = userDoc.data()?.country;
+    const promptCount = userDoc.data()?.countryPromptCount || 0;
+    
+    if (!userCountry && promptCount < 3) {
+      setCountryPromptCount(promptCount);
+      setShowCountrySelect(true);
+    } else {
+      setGameState("mode");
+    }
   };
 
   const handleGuestPlay = () => {
@@ -246,6 +260,23 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
     updateHighScore();
   }, [gameState, user, score]);
 
+  // Add this effect to handle game speed
+  useEffect(() => {
+    if (gameState === "playing") {
+      // Set a consistent game speed
+      const gameSpeed = 2; // Adjust this value to change game speed (1 = normal, 2 = faster, 0.5 = slower)
+      startGame(canvasSize.width, canvasSize.height, gameSpeed);
+    }
+  }, [gameState, canvasSize]);
+
+  // Handle game over and country prompt
+  const handleGameOver = async () => {
+    if (user && !user.country && countryPromptCount < 3) {
+      setShowCountrySelect(true);
+    }
+    setGameState("gameover");
+  };
+
   return (
     <div className="relative w-screen h-screen overflow-hidden">
       <canvas
@@ -265,7 +296,7 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
       {/* Top Right Icons - Updated */}
       {["start", "mode", "playing", "gameover"].includes(gameState) && (
         <div className="absolute top-4 right-4 flex gap-4 z-40">
-          {/* User Profile Indicator with Sign Out */}
+          {/* User Profile and Country Indicator */}
           <div className="flex items-center gap-2">
             {user ? (
               <div className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-2">
@@ -274,7 +305,22 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
                   alt="" 
                   className="w-6 h-6 rounded-full"
                 />
-                <span className="text-white text-sm hidden sm:inline">{user.displayName}</span>
+                {user.country ? (
+                  <span className="text-2xl" title={user.country.name}>
+                    {user.country.flag}
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => setShowCountrySelect(true)}
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                    title="Select your country"
+                  >
+                    <Globe className="w-5 h-5 text-white" />
+                  </button>
+                )}
+                <span className="text-white text-sm hidden sm:inline">
+                  {user.displayName}
+                </span>
                 <button
                   onClick={handleSignOut}
                   className="p-1 hover:bg-white/10 rounded-full transition-colors ml-2"
@@ -546,6 +592,20 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
         <LeaderboardModal 
           onClose={() => setShowLeaderboard(false)}
           currentScore={gameState === "gameover" ? score : null}
+        />
+      )}
+
+      {showCountrySelect && user && (
+        <CountrySelectModal
+          userId={user.uid}
+          promptCount={countryPromptCount}
+          onClose={(selectedCountry) => {
+            setShowCountrySelect(false);
+            if (selectedCountry) {
+              dispatch(setUser({ ...user, country: selectedCountry }));
+            }
+            setGameState("mode");
+          }}
         />
       )}
     </div>

@@ -51,7 +51,7 @@ function LeaderboardModal({ onClose, currentScore = null }) {
     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-gradient-to-b from-gray-900 to-black w-full max-w-md rounded-2xl p-8 mx-4 border border-white/20">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-white">Quantum Leaderboard</h2>
+          <h2 className="text-3xl font-bold text-white">Global Rankings</h2>
           <button 
             onClick={onClose}
             className="p-2 hover:bg-white/10 rounded-full transition-colors"
@@ -108,9 +108,16 @@ function LeaderboardModal({ onClose, currentScore = null }) {
                           className="w-6 h-6 rounded-full"
                         />
                       )}
-                      {score.displayName || 'Anonymous'}
+                      <div className="flex items-center gap-2">
+                        {score.country?.flag && (
+                          <span className="text-lg" title={score.country.name}>
+                            {score.country.flag}
+                          </span>
+                        )}
+                        <span>{score.displayName || 'Anonymous'}</span>
+                      </div>
                     </td>
-                    <td className="py-3 px-4 text-right">{score.highScore}</td>
+                    <td className="py-3 px-4 text-right">{score.highScore.toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>

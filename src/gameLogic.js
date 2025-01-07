@@ -1,140 +1,100 @@
-import bgImage from './assets/qubit-game-bg.png';
-import mascottImage from './assets/qubit-mascott.png';
-import pipeImage from './assets/qubit-game-pipe.png';
-import gameOverSoundFile from './assets/533034__evretro__8-bit-game-over-soundtune.wav';
-
-let qubit, pipes, gameWidth, gameHeight, bg, mascottImg, pipeImg, score;
-const gravity = 0.6;
-const jumpVelocity = -12;
-const pipeSpeed = 5;
-const pipeSpacing = 300;
-let gameOverSound;
-let gameOverSoundPlayed = false;
+let bird;
+let pipes = [];
+let score = 0;
+let gameSpeed = 1;
 
 export function initGame(ctx, width, height) {
-  gameWidth = width;
-  gameHeight = height;
-  score = 0;
+  bird = {
+    x: width / 4,
+    y: height / 2,
+    velocity: 0,
+    gravity: 0.5,
+    lift: -10,
+    size: 32
+  };
 
-  bg = new Image();
-  bg.src = bgImage;
-  mascottImg = new Image();
-  mascottImg.src = mascottImage;
-  pipeImg = new Image();
-  pipeImg.src = pipeImage;
-
-  // Initialize the audio
-  gameOverSound = new Audio(gameOverSoundFile);
-
-  return new Promise((resolve, reject) => {
-    Promise.all([
-      new Promise(res => bg.onload = res),
-      new Promise(res => mascottImg.onload = res),
-      new Promise(res => pipeImg.onload = res)
-    ]).then(() => {
-      console.log('All images loaded successfully');
-      resolve();
-    }).catch(error => {
-      console.error('Error loading images:', error);
-      reject(error);
-    });
-  });
-}
-
-export function startGame(width, height) {
-  gameWidth = width;
-  gameHeight = height;
-  qubit = { x: 150, y: height / 2, width: 75, height: 60 };
   pipes = [];
   score = 0;
-  gameOverSoundPlayed = false;
+}
+
+export function startGame(width, height, speed = 1) {
+  gameSpeed = speed;
+  const pipeSpacing = 1500 / gameSpeed; // Adjust pipe spawn rate based on speed
+
+  // Create new pipes at regular intervals
+  setInterval(() => {
+    if (pipes.length < 3) {
+      const gap = 200;
+      const pipeY = Math.random() * (height - gap - 100) + 50;
+      pipes.push({
+        x: width,
+        y: pipeY,
+        gap: gap,
+        width: 50,
+        counted: false
+      });
+    }
+  }, pipeSpacing);
 }
 
 export function updateGame(ctx, isClapping, width, height) {
-  gameWidth = width;
-  gameHeight = height;
+  // Clear canvas
+  ctx.clearRect(0, 0, width, height);
 
-  // Apply upward velocity if clapping is detected
+  // Update bird
   if (isClapping) {
-    qubit.velocity = jumpVelocity;
+    bird.velocity = bird.lift;
+  }
+  bird.velocity += bird.gravity;
+  bird.y += bird.velocity;
+
+  // Keep bird in bounds
+  if (bird.y > height - bird.size) {
+    bird.y = height - bird.size;
+    bird.velocity = 0;
+  }
+  if (bird.y < 0) {
+    bird.y = 0;
+    bird.velocity = 0;
   }
 
-  // Apply gravity to the qubit
-  qubit.velocity = (qubit.velocity || 0) + gravity;
+  // Draw bird
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(bird.x, bird.y, bird.size / 2, 0, Math.PI * 2);
+  ctx.fill();
 
-  // Update qubit's position based on velocity
-  qubit.y += qubit.velocity;
-
-  // Prevent the qubit from going below the ground
-  if (qubit.y + qubit.height >= height) {
-    qubit.y = height - qubit.height;
-    qubit.velocity = 0;
-  }
-
-  // Prevent qubit from going off the top of the screen
-  if (qubit.y <= 0) {
-    qubit.y = 0;
-    qubit.velocity = 0;
-  }
-
-  // Draw background
-  ctx.drawImage(bg, 0, 0, gameWidth, gameHeight);
-
-  // Draw qubit (mascott)
-  ctx.drawImage(mascottImg, qubit.x, qubit.y, qubit.width, qubit.height);
-
-  // Manage pipes
-  if (pipes.length === 0 || pipes[pipes.length - 1].x < width - pipeSpacing) {
-    const topHeight = Math.random() * (height - 200) + 50;
-    pipes.push({ x: width, topHeight, bottomHeight: height - topHeight - 350, passed: false });
-  }
-
-  let gameOver = false;
-
-  // Loop through pipes
+  // Update and draw pipes
   for (let i = pipes.length - 1; i >= 0; i--) {
-    pipes[i].x -= pipeSpeed;
+    const pipe = pipes[i];
+    pipe.x -= 5 * gameSpeed; // Adjust pipe movement speed
+
+    // Remove pipes that are off screen
+    if (pipe.x < -pipe.width) {
+      pipes.splice(i, 1);
+      continue;
+    }
 
     // Draw pipes
-    const pipeWidth = 80;
-    ctx.save();
-    ctx.translate(pipes[i].x + pipeWidth / 2, pipes[i].topHeight);
-    ctx.rotate(Math.PI);
-    ctx.drawImage(pipeImg, -pipeWidth / 2, 0, pipeWidth, pipes[i].topHeight);
-    ctx.restore();
-    ctx.drawImage(pipeImg, pipes[i].x, pipes[i].topHeight + 350, pipeWidth, gameHeight - pipes[i].topHeight - 350);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(pipe.x, 0, pipe.width, pipe.y);
+    ctx.fillRect(pipe.x, pipe.y + pipe.gap, pipe.width, height - (pipe.y + pipe.gap));
 
-    // Collision detection
+    // Check for collision
     if (
-      qubit.x + qubit.width > pipes[i].x &&
-      qubit.x < pipes[i].x + pipeWidth &&
-      (qubit.y < pipes[i].topHeight || qubit.y + qubit.height > pipes[i].topHeight + 350)
+      bird.x + bird.size / 2 > pipe.x &&
+      bird.x - bird.size / 2 < pipe.x + pipe.width &&
+      (bird.y - bird.size / 2 < pipe.y || bird.y + bird.size / 2 > pipe.y + pipe.gap)
     ) {
-      gameOver = true;
-      break;
+      return { gameOver: true, score };
     }
 
-    // Increment score if pipe is passed
-    if (pipes[i].x + pipeWidth < qubit.x && !pipes[i].passed) {
-      pipes[i].passed = true;
-      score += 1;
-    }
-
-    // Remove pipes that go off screen
-    if (pipes[i].x + pipeWidth < 0) {
-      pipes.splice(i, 1);
+    // Update score
+    if (!pipe.counted && pipe.x + pipe.width < bird.x) {
+      pipe.counted = true;
+      score++;
     }
   }
 
-  // Play game over sound if game is over and it hasn't played yet
-  if (gameOver && !gameOverSoundPlayed) {
-    gameOverSound.play().catch(error => console.error('Error playing sound:', error));
-    gameOverSoundPlayed = true;
-  }
-
-  // Draw score
-  ctx.fillStyle = 'white';
-  ctx.font = '30px Arial';
-
-  return { gameOver, score };
+  return { gameOver: false, score };
 }
