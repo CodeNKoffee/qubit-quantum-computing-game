@@ -1,7 +1,9 @@
-[[plugins]]
-package = "@21yunbox/netlify-plugin-21yunbox-deploy-to-china-cdn"
-
+# Delete these lines completely (don't even keep them commented)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[build]
+  command = "npm run build"
+  publish = "dist"
