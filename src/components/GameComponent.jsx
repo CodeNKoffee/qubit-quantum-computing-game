@@ -312,9 +312,13 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
                   className="w-6 h-6 rounded-full"
                 />
                 {user.country ? (
-                  <span className="text-2xl" title={user.country.name}>
-                    {user.country.flag}
-                  </span>
+                  <button
+                    onClick={() => setShowCountrySelect(true)}
+                    className="flex items-center gap-2 p-1 hover:bg-white/10 rounded-full transition-colors"
+                    title="Change your country"
+                  >
+                    <span className="text-2xl">{user.country.flag}</span>
+                  </button>
                 ) : (
                   <button
                     onClick={() => setShowCountrySelect(true)}

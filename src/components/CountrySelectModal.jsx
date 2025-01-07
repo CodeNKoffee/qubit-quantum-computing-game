@@ -91,7 +91,7 @@ function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
                 </p>
               </div>
 
-              <div className="flex gap-4 mt-8">
+              <div className="flex flex-row-reverse gap-4 mt-8">
                 <button
                   onClick={() => {
                     setShowWelcome(false);
@@ -177,7 +177,7 @@ function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
                 ))}
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-row-reverse gap-4">
                 <button
                   onClick={handleCountrySelect}
                   disabled={!selectedCountry || loading || (currentCountry && countryChanges >= 3)}
