@@ -213,39 +213,56 @@
 
         {/* Settings Modal */}
         {showSettings && (
-          <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-              <h2 className="text-2xl font-bold mb-6">Settings</h2>
-              <div className="space-y-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-gradient-to-b from-gray-900 to-black w-full max-w-md rounded-2xl p-8 mx-4 border border-white/20">
+              <h2 className="text-3xl font-bold text-white mb-8">Settings</h2>
+              
+              <div className="space-y-6">
+                {/* Music Setting */}
                 <div className="flex items-center justify-between">
-                  <span>Music</span>
+                  <span className="text-white text-lg">Music</span>
                   <button
                     onClick={() => setMusicEnabled(!musicEnabled)}
-                    className={`px-4 py-2 rounded ${
-                      musicEnabled ? "bg-green-500" : "bg-red-500"
+                    className={`px-6 py-2 rounded-lg font-bold transition-colors ${
+                      musicEnabled 
+                        ? "bg-blue-600 hover:bg-blue-700" 
+                        : "bg-gray-700 hover:bg-gray-600"
                     } text-white`}
                   >
                     {musicEnabled ? "On" : "Off"}
                   </button>
                 </div>
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Legal</h3>
-                  <div className="space-y-2">
-                    <Link to="/terms" className="block text-blue-600 hover:underline">
+
+                {/* Legal Section */}
+                <div className="space-y-3">
+                  <h3 className="text-white/80 text-lg font-semibold">Legal</h3>
+                  <div className="grid grid-cols-1 gap-2">
+                    <Link 
+                      to="/terms" 
+                      className="w-full text-left px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
+                    >
                       Terms of Service
                     </Link>
-                    <Link to="/privacy" className="block text-blue-600 hover:underline">
+                    <Link 
+                      to="/privacy" 
+                      className="w-full text-left px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
+                    >
                       Privacy Policy
                     </Link>
-                    <Link to="/refund" className="block text-blue-600 hover:underline">
+                    <Link 
+                      to="/refund" 
+                      className="w-full text-left px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
+                    >
                       Refund Policy
                     </Link>
                   </div>
                 </div>
               </div>
+
+              {/* Close Button */}
               <button
                 onClick={() => setShowSettings(false)}
-                className="mt-6 w-full bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
+                className="mt-8 w-full bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg transition-colors"
               >
                 Close
               </button>
