@@ -94,6 +94,9 @@ function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
                 <p className="text-lg leading-relaxed">
                   Join thousands of players representing their nations in this epic quest. Your country needs you! 🌟
                 </p>
+                <p className="text-lg leading-relaxed">
+                  Did you know that the UN declares 2025 the &quot;Year of Quantum Science&quot;
+                </p>
               </div>
 
               <div className="flex flex-row-reverse gap-4 mt-8">
