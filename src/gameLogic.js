@@ -80,7 +80,7 @@ export function startGame(width, height, speed = 1) {
   gameOverSoundPlayed = false;
 }
 
-export function updateGame(ctx, isClapping, width, height) {
+export function updateGame(ctx, isClapping, width, height, musicEnabled = true) {
   gameWidth = width;
   gameHeight = height;
 
@@ -162,8 +162,8 @@ export function updateGame(ctx, isClapping, width, height) {
     }
   }
 
-  // Play game over sound
-  if (gameOver && !gameOverSoundPlayed) {
+  // Play game over sound only if music is enabled
+  if (gameOver && !gameOverSoundPlayed && musicEnabled) {
     gameOverSound.play().catch(error => console.error('Error playing sound:', error));
     gameOverSoundPlayed = true;
   }

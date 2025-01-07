@@ -105,6 +105,7 @@ function QuantumShop() {
                     onClick={() => {
                       if (isGuest) {
                         alert("Please sign in to purchase Quantum Coins and unlock all features!");
+                        
                         return;
                       }
                       // ... rest of purchase logic

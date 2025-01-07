@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Pause, Settings, ShoppingBag, Trophy, UserCircle, LogOut, Globe } from "lucide-react";
 import { initGame, updateGame, startGame } from "../gameLogic";
 import PropTypes from 'prop-types';
@@ -14,7 +14,6 @@ import { db } from '../firebase';
 import CountrySelectModal from "./CountrySelectModal";
 
 function GameComponent({ bgImage, gameIntroSoundFile }) {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, isGuest } = useSelector(state => state.user);
   const { musicEnabled } = useSelector(state => state.settings);
@@ -144,7 +143,7 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
 
     const gameLoop = () => {
       if (gameState === "playing" && !isPaused) {
-        const gameStatus = updateGame(ctx, isClapping, canvasSize.width, canvasSize.height);
+        const gameStatus = updateGame(ctx, isClapping, canvasSize.width, canvasSize.height, musicEnabled);
         if (gameStatus.gameOver) {
           handleGameOver();
           cancelAnimationFrame(animationFrameId);
@@ -209,13 +208,20 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
   };
 
   const handleAuthSuccess = async (userData) => {
-    dispatch(setUser(userData));
-    setShowAuthModal(false);
-    
     // Check if user has a country
     const userDoc = await getDoc(doc(db, 'users', userData.uid));
-    const userCountry = userDoc.data()?.country;
-    const promptCount = userDoc.data()?.countryPromptCount || 0;
+    const userDocData = userDoc.data();
+    const userCountry = userDocData?.country;
+    const promptCount = userDocData?.countryPromptCount || 0;
+    
+    // Update userData with country if it exists
+    const updatedUserData = {
+      ...userData,
+      country: userCountry || null
+    };
+    
+    dispatch(setUser(updatedUserData));
+    setShowAuthModal(false);
     
     if (!userCountry && promptCount < 3) {
       setCountryPromptCount(promptCount);
@@ -347,23 +353,30 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => !isGuest && setShowAuthModal(true)}
-                className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-2 hover:bg-white/30 transition-colors"
-              >
-                <UserCircle className="w-6 h-6 text-white" />
-                <span className="text-white text-sm hidden sm:inline">
-                  {isGuest ? 'Guest' : 'Sign In'}
-                </span>
-                {isGuest && (
+              isGuest ? (
+                <div className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-2">
+                  <UserCircle className="w-6 h-6 text-white" />
+                  <span className="text-white text-sm hidden sm:inline">
+                    Guest
+                  </span>
                   <button
                     onClick={() => dispatch(setGuest(false))}
                     className="p-1 hover:bg-white/10 rounded-full transition-colors ml-2"
                   >
                     <LogOut className="w-4 h-4 text-white" />
                   </button>
-                )}
-              </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-2 hover:bg-white/30 transition-colors"
+                >
+                  <UserCircle className="w-6 h-6 text-white" />
+                  <span className="text-white text-sm hidden sm:inline">
+                    Sign In
+                  </span>
+                </button>
+              )
             )}
           </div>
 
@@ -375,7 +388,11 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
             } rounded-full transition-colors flex items-center justify-center`}
             onClick={() => {
               if (gameState !== "playing") {
-                navigate('/shop');
+                if (!user && !isGuest) {
+                  setShowAuthModal(true);
+                } else {
+                  alert("The shop is currently under maintenance. You'll be able to make purchases soon!");
+                }
               }
             }}
             disabled={gameState === "playing"}
