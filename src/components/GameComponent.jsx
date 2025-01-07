@@ -20,6 +20,8 @@
     const [showSettings, setShowSettings] = useState(false);
     const [musicEnabled, setMusicEnabled] = useState(true);
     const [isPaused, setIsPaused] = useState(false);
+    const [showPauseModal, setShowPauseModal] = useState(false);
+    const [countdown, setCountdown] = useState(null);
 
     const audioContextRef = useRef(null);
     const analyserRef = useRef(null);
@@ -165,6 +167,23 @@
       }
     };
 
+    const handleResume = () => {
+      setShowPauseModal(false);
+      setCountdown(3);
+      
+      const countdownInterval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            setIsPaused(false);
+            setCountdown(null);
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    };
+
     return (
       <div className="relative w-screen h-screen overflow-hidden">
         <canvas
@@ -207,7 +226,10 @@
             </button>
             {gameState === "playing" && (
               <button
-                onClick={() => setIsPaused(!isPaused)}
+                onClick={() => {
+                  setIsPaused(true);
+                  setShowPauseModal(true);
+                }}
                 className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
               >
                 <Pause className="w-6 h-6 text-white" />
@@ -271,6 +293,45 @@
               >
                 Close
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Pause Modal */}
+        {showPauseModal && (
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-gradient-to-b from-gray-900 to-black w-full max-w-md rounded-2xl p-8 mx-4 border border-white/20">
+              <h2 className="text-3xl font-bold text-white mb-8 text-center">Game Paused</h2>
+              
+              <div className="space-y-4">
+                <button
+                  onClick={handleResume}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors"
+                >
+                  Resume Game
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setShowPauseModal(false);
+                    setGameState("start");
+                    setIsPaused(false);
+                    setScore(0);
+                  }}
+                  className="w-full bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg transition-colors"
+                >
+                  Quit to Menu
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Countdown Overlay */}
+        {countdown && (
+          <div className="absolute inset-0 flex items-center justify-center z-50">
+            <div className="text-8xl font-bold text-white animate-pulse">
+              {countdown}
             </div>
           </div>
         )}
