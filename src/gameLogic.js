@@ -14,8 +14,8 @@ let gameOverSoundPlayed = false;
 const PIPE_WIDTH = 80;
 const BIRD_WIDTH = 75;
 const BIRD_HEIGHT = 60;
-const PIPE_SPACING = 300;
-const PIPE_SPEED = 5;
+const PIPE_SPACING = 450;
+const PIPE_SPEED = 4.5;
 const GRAVITY = 0.6;
 const JUMP_VELOCITY = -12;
 
@@ -66,7 +66,7 @@ export function startGame(width, height, speed = 1) {
   gameSpeed = speed;
   gameWidth = width;
   gameHeight = height;
-  
+
   // Reset game state
   bird = {
     x: 150,
@@ -94,7 +94,7 @@ export function updateGame(ctx, isClapping, width, height) {
   if (isClapping) {
     bird.velocity = JUMP_VELOCITY;
   }
-  
+
   // Apply gravity
   bird.velocity += GRAVITY;
   bird.y += bird.velocity;
