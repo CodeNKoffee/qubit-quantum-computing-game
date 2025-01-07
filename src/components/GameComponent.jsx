@@ -45,7 +45,7 @@
       };
 
       const playIntroMusic = () => {
-        if (introMusicRef.current && !["playing", "gameover"].includes(gameState)) {
+        if (introMusicRef.current && !["playing", "gameover"].includes(gameState) && musicEnabled) {
           introMusicRef.current.play()
             .catch(error => console.error("Error playing intro music:", error));
         }
@@ -59,7 +59,9 @@
 
       const handleInteraction = () => {
         initializeAudio();
-        playIntroMusic();
+        if (musicEnabled) {
+          playIntroMusic();
+        }
         window.removeEventListener("mousemove", handleInteraction);
         window.removeEventListener("click", handleInteraction);
         window.removeEventListener("keydown", handleInteraction);
@@ -69,7 +71,10 @@
       window.addEventListener("click", handleInteraction);
       window.addEventListener("keydown", handleInteraction);
 
-      if (["playing", "gameover"].includes(gameState)) {
+      // Handle music state changes
+      if (!musicEnabled) {
+        pauseIntroMusic();
+      } else if (["playing", "gameover"].includes(gameState)) {
         pauseIntroMusic();
       } else if (musicInitialized) {
         playIntroMusic();
@@ -81,7 +86,7 @@
         window.removeEventListener("keydown", handleInteraction);
         pauseIntroMusic();
       };
-    }, [gameState, musicInitialized, gameIntroSoundFile]);
+    }, [gameState, musicInitialized, gameIntroSoundFile, musicEnabled]);
 
     const startAudioProcessing = async () => {
       try {
