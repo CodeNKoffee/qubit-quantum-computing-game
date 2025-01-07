@@ -2,8 +2,9 @@ import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import quantumCoinIcon from '../assets/vbuck.png';
 import bgImage from '../assets/qubit-game-bg.png';
+import PropTypes from 'prop-types';
 
-function QuantumShop() {
+function QuantumShop({ isGuest }) {
   const navigate = useNavigate();
 
   const packages = [
@@ -100,7 +101,13 @@ function QuantumShop() {
 
                   {/* Purchase Button - Always at bottom */}
                   <button 
-                    onClick={() => alert("This feature is currently under rapid construction and maintenance. Check back soon!")}
+                    onClick={() => {
+                      if (isGuest) {
+                        alert("Please sign in to purchase Quantum Coins and unlock all features!");
+                        return;
+                      }
+                      // ... rest of purchase logic
+                    }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors mt-4"
                   >
                     Purchase
@@ -120,5 +127,9 @@ function QuantumShop() {
     </div>
   );
 }
+
+QuantumShop.propTypes = {
+  isGuest: PropTypes.bool.isRequired
+};
 
 export default QuantumShop; 
