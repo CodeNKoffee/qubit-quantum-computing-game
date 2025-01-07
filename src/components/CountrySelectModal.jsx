@@ -36,6 +36,11 @@ function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
   const handleCountrySelect = async () => {
     if (!selectedCountry) return;
     
+    if (currentCountry && currentCountry.code === selectedCountry.code) {
+      setError("You already represent this country!");
+      return;
+    }
+    
     if (currentCountry && countryChanges >= 3) {
       setError("You've reached the maximum number of country changes (3).");
       return;
@@ -180,9 +185,9 @@ function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
               <div className="flex flex-row-reverse gap-4">
                 <button
                   onClick={handleCountrySelect}
-                  disabled={!selectedCountry || loading || (currentCountry && countryChanges >= 3)}
+                  disabled={!selectedCountry || loading || (currentCountry && countryChanges >= 3) || (currentCountry && selectedCountry?.code === currentCountry.code)}
                   className={`flex-1 py-3 rounded-lg font-bold transition-colors ${
-                    selectedCountry && !(currentCountry && countryChanges >= 3)
+                    selectedCountry && !(currentCountry && countryChanges >= 3) && !(currentCountry && selectedCountry?.code === currentCountry.code)
                       ? 'bg-blue-600 hover:bg-blue-700 text-white'
                       : 'bg-white/10 text-white/40 cursor-not-allowed'
                   }`}

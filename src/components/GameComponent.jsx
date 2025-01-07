@@ -248,9 +248,17 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
       if (gameState === "gameover" && user && score > 0) {
         try {
           const userRef = doc(db, 'users', user.uid);
-          await updateDoc(userRef, {
-            highScore: Math.max(score, user.highScore || 0)
-          });
+          const userDoc = await getDoc(userRef);
+          const currentHighScore = userDoc.data()?.highScore || 0;
+          
+          // Only update if new score is higher than current high score
+          if (score > currentHighScore) {
+            await updateDoc(userRef, {
+              highScore: score
+            });
+            // Update local user state with new high score
+            dispatch(setUser({ ...user, highScore: score }));
+          }
         } catch (error) {
           console.error('Error updating high score:', error);
         }
@@ -258,7 +266,7 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
     };
 
     updateHighScore();
-  }, [gameState, user, score]);
+  }, [gameState, user, score, dispatch]);
 
   // Add this effect to handle game speed
   useEffect(() => {
@@ -360,11 +368,11 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
           </div>
 
           <button 
-            className={`p-2 ${
+            className={`p-2 aspect-square ${
               gameState === "playing" 
                 ? "bg-white/10 cursor-not-allowed" 
                 : "bg-white/20 hover:bg-white/30"
-            } rounded-full transition-colors`}
+            } rounded-full transition-colors flex items-center justify-center`}
             onClick={() => {
               if (gameState !== "playing") {
                 navigate('/shop');
@@ -377,14 +385,14 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
 
           <button
             onClick={() => setShowLeaderboard(true)}
-            className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
+            className="p-2 aspect-square bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center"
           >
             <Trophy className="w-6 h-6 text-white" />
           </button>
 
           <button
             onClick={() => setShowSettings(true)}
-            className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
+            className="p-2 aspect-square bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center"
           >
             <Settings className="w-6 h-6 text-white" />
           </button>
@@ -395,7 +403,7 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
                 setIsPaused(true);
                 setShowPauseModal(true);
               }}
-              className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
+              className="p-2 aspect-square bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center"
             >
               <Pause className="w-6 h-6 text-white" />
             </button>

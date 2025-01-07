@@ -56,7 +56,7 @@ function LeaderboardModal({ onClose, currentScore }) {
     };
 
     fetchScores();
-  }, []);
+  }, [currentScore]);
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
