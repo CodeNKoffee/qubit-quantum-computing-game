@@ -1,10 +1,11 @@
 import { useRef, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Pause, Settings, ShoppingBag } from "lucide-react";
 import { initGame, updateGame, startGame } from "../gameLogic";
 import PropTypes from 'prop-types';
 
 function GameComponent({ bgImage, gameIntroSoundFile }) {
+  const navigate = useNavigate();
   const canvasRef = useRef(null);
   const [gameState, setGameState] = useState("start");
   const [score, setScore] = useState(0);
@@ -178,7 +179,19 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
       {/* Top Right Icons */}
       {["start", "mode", "playing", "gameover"].includes(gameState) && (
         <div className="absolute top-4 right-4 flex gap-4 z-50">
-          <button className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors">
+          <button 
+            className={`p-2 ${
+              gameState === "playing" 
+                ? "bg-white/10 cursor-not-allowed" 
+                : "bg-white/20 hover:bg-white/30"
+            } rounded-full transition-colors`}
+            onClick={() => {
+              if (gameState !== "playing") {
+                navigate('/shop');
+              }
+            }}
+            disabled={gameState === "playing"}
+          >
             <ShoppingBag className="w-6 h-6 text-white" />
           </button>
           <button
