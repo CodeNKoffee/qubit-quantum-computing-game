@@ -3,8 +3,7 @@ import bgImage from "../assets/qubit-game-bg.png";
 
 function Refund() {
   return (
-    <LegalPageWrapper bgImage={bgImage}>
-      <h1 className="text-3xl font-bold mb-6">Refund Policy</h1>
+    <LegalPageWrapper bgImage={bgImage} title="Refund Policy">
       <section>
         <h2 className="text-xl font-semibold mb-4">1. Quantum Coins Policy</h2>
         <p className="mb-6">
