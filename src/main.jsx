@@ -15,9 +15,9 @@ store.dispatch(initSettings());
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-  <React>
+  <React.StrictMode>
     <Provider store={store}>
       <App />
     </Provider>
-  </React>
+  </React.StrictMode>
 );
