@@ -22,8 +22,6 @@ function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
         setCountryChanges(userData?.countryChanges || 0);
         if (userData?.country) {
           setCurrentCountry(userData.country);
-          setShowWelcome(false);
-          setShowSelection(true);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -61,15 +59,18 @@ function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-gradient-to-b from-gray-900 to-black w-full max-w-2xl rounded-2xl overflow-hidden">
-        <img 
-          src={countriesBanner} 
-          alt="Countries Banner" 
-          className="w-full h-48 object-cover"
-        />
+        <div className="relative w-full" style={{ paddingTop: '33.33%' }}>
+          <img 
+            src={countriesBanner} 
+            alt="Countries Banner" 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+        </div>
         
-        <div className="p-8">
-          {showWelcome && (
-            <>
+        <div className="relative">
+          <div className={`transform transition-all duration-500 ${showWelcome ? 'translate-x-0' : '-translate-x-full absolute inset-0 invisible'}`}>
+            <div className="p-8">
               <h2 className="text-3xl font-bold text-white mb-6">
                 Welcome to Quantum Fly! 🌎
               </h2>
@@ -96,34 +97,51 @@ function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
                   }}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition-colors"
                 >
-                  Proceed to Country Selection
+                  Next
                 </button>
                 <button
                   onClick={() => onClose()}
                   className="flex-1 bg-white/5 hover:bg-white/10 text-white py-4 rounded-lg transition-colors"
                 >
-                  Maybe Later
+                  Cancel
                 </button>
               </div>
-            </>
-          )}
+            </div>
+          </div>
 
-          {showSelection && (
-            <>
+          <div className={`transform transition-all duration-500 ${showSelection ? 'translate-x-0' : 'translate-x-full absolute inset-0 invisible'}`}>
+            <div className="p-8">
               <h2 className="text-3xl font-bold text-white mb-4">
                 {currentCountry ? 'Change Your Country' : 'Select Your Country'} 🌎
               </h2>
               
-              {currentCountry && (
-                <div className="mb-4 p-4 bg-white/5 rounded-lg">
-                  <p className="text-white/80">
-                    Current Country: <span className="text-2xl">{currentCountry.flag}</span> {currentCountry.name}
-                  </p>
-                  <p className="text-white/60 text-sm mt-2">
+              <div className="mb-4 p-4 bg-white/5 rounded-lg">
+                <div className="flex items-center gap-4">
+                  {currentCountry && (
+                    <div className="flex-1">
+                      <p className="text-white/60 text-sm mb-1">Current Country:</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{currentCountry.flag}</span>
+                        <span className="text-white">{currentCountry.name}</span>
+                      </div>
+                    </div>
+                  )}
+                  {selectedCountry && (
+                    <div className="flex-1">
+                      <p className="text-white/60 text-sm mb-1">Selected Country:</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{selectedCountry.flag}</span>
+                        <span className="text-white">{selectedCountry.name}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {currentCountry && (
+                  <p className="text-white/60 text-sm mt-3">
                     Country changes remaining: {Math.max(0, 3 - countryChanges)}
                   </p>
-                </div>
-              )}
+                )}
+              </div>
 
               {error && (
                 <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -176,8 +194,8 @@ function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
                   Cancel
                 </button>
               </div>
-            </>
-          )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -190,4 +208,4 @@ CountrySelectModal.propTypes = {
   promptCount: PropTypes.number
 };
 
-export default CountrySelectModal; 
+export default CountrySelectModal;
