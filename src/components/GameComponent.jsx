@@ -298,7 +298,7 @@
         )}
 
         {/* Pause Modal */}
-        {showPauseModal && (
+        {showPauseModal && !countdown && (
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-gradient-to-b from-gray-900 to-black w-full max-w-md rounded-2xl p-8 mx-4 border border-white/20">
               <h2 className="text-3xl font-bold text-white mb-8 text-center">Game Paused</h2>
@@ -329,8 +329,8 @@
 
         {/* Countdown Overlay */}
         {countdown && (
-          <div className="absolute inset-0 flex items-center justify-center z-40">
-            <div className="text-8xl font-bold text-white animate-pulse drop-shadow-lg">
+          <div className="absolute inset-0 flex items-center justify-center z-40 bg-black/40 backdrop-blur-[2px]">
+            <div className="text-[200px] font-bold text-white animate-bounce drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
               {countdown}
             </div>
           </div>
