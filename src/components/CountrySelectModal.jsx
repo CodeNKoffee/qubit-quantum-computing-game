@@ -20,8 +20,10 @@ function CountrySelectModal({ userId, onClose, promptCount = 0 }) {
         const userDoc = await getDoc(doc(db, 'users', userId));
         const userData = userDoc.data();
         setCountryChanges(userData?.countryChanges || 0);
-        if (userData?.country) {
+        if (userData?.country?.name && userData?.country?.flag) {
           setCurrentCountry(userData.country);
+        } else {
+          setCurrentCountry(null);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
