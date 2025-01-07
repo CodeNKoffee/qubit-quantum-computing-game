@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import GameComponent from './components/GameComponent';
 import Privacy from './pages/Privacy';
