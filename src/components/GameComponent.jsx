@@ -188,7 +188,7 @@
       <div className="relative w-screen h-screen overflow-hidden">
         <canvas
           ref={canvasRef}
-          className="absolute top-0 left-0 w-full h-full z-10"
+          className="absolute top-0 left-0 w-full h-full z-20"
         />
 
         {/* Background Image */}
@@ -200,9 +200,9 @@
           />
         )}
 
-        {/* Top Right Icons */}
+        {/* Top Right Icons - Increase z-index */}
         {["start", "mode", "playing", "gameover"].includes(gameState) && (
-          <div className="absolute top-4 right-4 flex gap-4 z-50">
+          <div className="absolute top-4 right-4 flex gap-4 z-40">
             <button 
               className={`p-2 ${
                 gameState === "playing" 
@@ -336,9 +336,9 @@
           </div>
         )}
 
-        {/* Legal Links (Start Screen) */}
+        {/* Legal Links - Increase z-index */}
         {gameState === "start" && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-8 text-white/80 z-50">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-8 text-white/80 z-40">
             <Link to="/terms" className="hover:text-white">Terms</Link>
             <Link to="/privacy" className="hover:text-white">Privacy</Link>
             <Link to="/refund" className="hover:text-white">Refund</Link>
@@ -348,7 +348,7 @@
         {/* Game States UI */}
         {gameState === "start" && (
           <>
-            <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-14">
+            <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-14 z-30">
               <h1 className="game-header">Quantum Fly</h1>
               <button onClick={() => setGameState("mode")} className="game-btn">
                 Start Game
@@ -358,7 +358,7 @@
         )}
 
         {gameState === "mode" && (
-          <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-14">
+          <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-14 z-30">
             <h2 className="game-header">Select Mode</h2>
             <div className="flex gap-5">
               <button
@@ -382,14 +382,14 @@
             </div>
             <p className={`font-bold absolute bottom-5 bg-white ${
               modeDescription ? "opacity-75" : "opacity-0"
-            } rounded-2xl p-8`}>
+            } rounded-2xl p-8 z-30`}>
               {modeDescription}
             </p>
           </div>
         )}
 
         {gameState === "gameover" && (
-          <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-6">
+          <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-6 z-30">
             <h1 className="game-header">Game Over</h1>
             <h2 className="game-subheader">Final Score: {score}</h2>
             <button 
@@ -406,13 +406,13 @@
         )}
 
         {gameState === "playing" && (
-          <div className="absolute top-5 left-5 text-white text-2xl font-bold bg-black/50 p-3 rounded-2xl z-20">
+          <div className="absolute top-5 left-5 text-white text-2xl font-bold bg-black/50 p-3 rounded-2xl z-30">
             Quantum Score: {score}
           </div>
         )}
 
         {error && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-500 text-2xl font-bold">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-500 text-2xl font-bold z-30">
             {error}
           </div>
         )}
