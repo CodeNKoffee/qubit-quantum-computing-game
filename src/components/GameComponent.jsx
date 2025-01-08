@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Pause, Settings, ShoppingBag, Trophy, UserCircle, LogOut, Globe } from "lucide-react";
 import { initGame, updateGame, startGame } from "../gameLogic";
 import PropTypes from 'prop-types';
@@ -15,6 +15,7 @@ import CountrySelectModal from "./CountrySelectModal";
 
 function GameComponent({ bgImage, gameIntroSoundFile }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user, isGuest } = useSelector(state => state.user);
   const { musicEnabled } = useSelector(state => state.settings);
   
@@ -389,7 +390,7 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
                 if (!user && !isGuest) {
                   setShowAuthModal(true);
                 } else {
-                  alert("The shop is currently under maintenance. You'll be able to make purchases soon!");
+                  navigate('/shop');
                 }
               }
             }}

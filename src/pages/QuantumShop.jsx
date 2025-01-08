@@ -1,39 +1,58 @@
 import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import quantumCoinIcon from '../assets/vbuck.png';
+import quantumCoinIcon from '../assets/quantum-currency.png';
 import bgImage from '../assets/qubit-game-bg.png';
+import ErrorModal from '../components/ErrorModal';
+import { useState } from 'react';
 
 function QuantumShop() {
   const navigate = useNavigate();
   const { isGuest } = useSelector(state => state.user);
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   const packages = [
     {
-      coins: 1000,
-      bonus: 0,
-      price: 7.99,
-      popular: false
+      name: "Quantum Starter",
+      coins: 1500,
+      bonus: 100,
+      price: 4.99,
+      popular: false,
+      description: "Perfect for beginners"
     },
     {
-      coins: 2800,
-      bonus: 300,
+      name: "Quantum Pro",
+      coins: 3500,
+      bonus: 500,
+      price: 9.99,
+      popular: true,
+      description: "Most popular choice!"
+    },
+    {
+      name: "Quantum Elite",
+      coins: 7500,
+      bonus: 1500,
       price: 19.99,
-      popular: true
+      popular: false,
+      description: "Best value"
     },
     {
-      coins: 5000,
-      bonus: 700,
-      price: 31.99,
-      popular: false
-    },
-    {
-      coins: 13500,
-      bonus: 2500,
-      price: 79.99,
-      popular: false
+      name: "Quantum Master",
+      coins: 16000,
+      bonus: 4000,
+      price: 39.99,
+      popular: false,
+      description: "Ultimate package"
     }
   ];
+
+  const handlePurchase = () => {
+    if (isGuest) {
+      navigate('/');
+      return;
+    }
+    setShowErrorModal(true);
+  };
 
   return (
     <div className="relative w-screen h-screen overflow-hidden">
@@ -61,7 +80,7 @@ function QuantumShop() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {packages.map((pkg) => (
               <div 
-                key={pkg.coins}
+                key={pkg.name}
                 className={`relative rounded-xl overflow-hidden ${
                   pkg.popular ? 'border-2 border-yellow-500' : 'border border-white/20'
                 }`}
@@ -73,6 +92,9 @@ function QuantumShop() {
                 )}
                 
                 <div className="bg-gradient-to-b from-purple-900/50 to-black p-4 flex flex-col h-full">
+                  {/* Package Name */}
+                  <h3 className="text-white font-bold mb-2">{pkg.name}</h3>
+                  
                   {/* Content Container */}
                   <div className="flex-grow">
                     {/* Coin Amount */}
@@ -89,28 +111,26 @@ function QuantumShop() {
 
                     {/* Bonus */}
                     {pkg.bonus > 0 && (
-                      <div className="text-green-400 text-sm mb-4">
+                      <div className="text-green-400 text-sm mb-2">
                         +{pkg.bonus.toLocaleString()} Bonus
                       </div>
                     )}
 
+                    {/* Description */}
+                    <div className="text-white/60 text-sm mb-4">
+                      {pkg.description}
+                    </div>
+
                     {/* Price */}
-                    <div className="text-white font-bold">
+                    <div className="text-white font-bold mb-4">
                       ${pkg.price}
                     </div>
                   </div>
 
-                  {/* Purchase Button - Always at bottom */}
+                  {/* Purchase Button */}
                   <button 
-                    onClick={() => {
-                      if (isGuest) {
-                        alert("Please sign in to purchase Quantum Coins and unlock all features!");
-                        
-                        return;
-                      }
-                      // ... rest of purchase logic
-                    }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors mt-4"
+                    onClick={handlePurchase}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
                   >
                     Purchase
                   </button>
@@ -126,6 +146,13 @@ function QuantumShop() {
           </div>
         </div>
       </div>
+
+      {showErrorModal && (
+        <ErrorModal
+          onClose={() => setShowErrorModal(false)}
+          message="The shop is currently under maintenance. You'll be able to make purchases soon!"
+        />
+      )}
     </div>
   );
 }
