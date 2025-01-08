@@ -4,7 +4,6 @@
 
 [build.environment]
   NODE_VERSION = "18"
-  VITE_FIREBASE_AUTH_DOMAIN = "quantumfly.hatemsoliman.dev"
 
 [[redirects]]
   from = "/*"
@@ -12,5 +11,5 @@
   status = 200
   force = true
 
-[context.production]
-  environment = { NODE_ENV = "production" }
+[context.production.environment]
+  NODE_ENV = "production"

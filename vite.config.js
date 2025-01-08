@@ -7,15 +7,15 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom', 'firebase', '@reduxjs/toolkit', 'react-redux'],
-        },
-      },
-    },
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true
+    }
+  },
+  optimizeDeps: {
+    include: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/analytics']
   },
   server: {
-    port: 3000
+    port: 5173
   }
 })

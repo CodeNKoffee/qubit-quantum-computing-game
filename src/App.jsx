@@ -7,26 +7,30 @@ import QuantumShop from './pages/QuantumShop';
 import bgImage from './assets/qubit-game-bg.png';
 import gameIntroSoundFile from './assets/520937__mrthenoronha__8-bit-game-intro-loop.wav';
 import './App.css';
+import FirebaseErrorBoundary from './components/FirebaseErrorBoundary';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route 
-          path="/" 
-          element={
-            <GameComponent 
-              bgImage={bgImage} 
-              gameIntroSoundFile={gameIntroSoundFile}
-            />
-          } 
-        />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/refund" element={<Refund />} />
-        <Route path="/shop" element={<QuantumShop />} />
-      </Routes>
-    </Router>
+    <>
+      <FirebaseErrorBoundary />
+      <Router>
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <GameComponent 
+                bgImage={bgImage} 
+                gameIntroSoundFile={gameIntroSoundFile}
+              />
+            } 
+          />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/refund" element={<Refund />} />
+          <Route path="/shop" element={<QuantumShop />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 
