@@ -107,14 +107,14 @@ function LeaderboardModal({ onClose, currentScore }) {
                   <td className="py-3 px-4 text-white/80">{index + 1}</td>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
-                      <img src={score.photoURL} alt="" className="w-8 h-8 rounded-full" />
+                      <img src={score.photoURL} alt="" className="w-8 h-8 rounded-full hidden sm:block" />
                       <span className="text-white">{score.displayName}</span>
                     </div>
                   </td>
                   <td className="py-3 px-4">
                     {score.country ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl">{score.country.flag}</span>
+                        <span className="text-2xl hidden sm:inline">{score.country.flag}</span>
                         <span className="text-white">{score.country.name}</span>
                       </div>
                     ) : (

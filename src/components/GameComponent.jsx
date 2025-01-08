@@ -22,9 +22,29 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
   const canvasRef = useRef(null);
   const [gameState, setGameState] = useState("start");
   const [score, setScore] = useState(0);
-  const [canvasSize, setCanvasSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
+  const [canvasSize, setCanvasSize] = useState(() => {
+    const isMobile = window.innerWidth <= 768;
+    const isTablet = window.innerWidth <= 1024 && window.innerWidth > 768;
+    
+    if (isMobile) {
+      // For mobile, use full width and 80% of height
+      return {
+        width: window.innerWidth,
+        height: window.innerHeight * 0.8
+      };
+    } else if (isTablet) {
+      // For tablets, use 90% of width and height
+      return {
+        width: window.innerWidth * 0.9,
+        height: window.innerHeight * 0.9
+      };
+    } else {
+      // For desktop, use full dimensions
+      return {
+        width: window.innerWidth,
+        height: window.innerHeight
+      };
+    }
   });
   const [error, setError] = useState(null);
   const [isClapping, setIsClapping] = useState(false);
@@ -46,7 +66,25 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
 
   useEffect(() => {
     const handleResize = () => {
-      setCanvasSize({ width: window.innerWidth, height: window.innerHeight });
+      const isMobile = window.innerWidth <= 768;
+      const isTablet = window.innerWidth <= 1024 && window.innerWidth > 768;
+      
+      if (isMobile) {
+        setCanvasSize({
+          width: window.innerWidth,
+          height: window.innerHeight * 0.8
+        });
+      } else if (isTablet) {
+        setCanvasSize({
+          width: window.innerWidth * 0.9,
+          height: window.innerHeight * 0.9
+        });
+      } else {
+        setCanvasSize({
+          width: window.innerWidth,
+          height: window.innerHeight
+        });
+      }
     };
 
     window.addEventListener("resize", handleResize);
@@ -301,33 +339,38 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
       <canvas
         ref={canvasRef}
         className="absolute top-0 left-0 w-full h-full z-20"
+        style={{
+          touchAction: 'none', // Prevent default touch behaviors
+          maxWidth: '100vw',
+          maxHeight: '100vh'
+        }}
       />
 
       {/* Background Image */}
       {(gameState === "start" || gameState === "gameover" || gameState === "mode" || gameState === "playing") && (
         <img
           src={bgImage}
-          className="absolute top-0 left-0 w-full h-full -z-10"
+          className="absolute top-0 left-0 w-full h-full object-cover -z-10"
           alt="Background"
         />
       )}
 
-      {/* Top Right Icons - Updated */}
+      {/* Top Right Icons - Updated for mobile */}
       {["start", "mode", "playing", "gameover"].includes(gameState) && (
-        <div className="absolute top-4 right-4 flex gap-4 z-40">
+        <div className="absolute top-4 inset-x-0 flex flex-wrap items-center justify-center sm:justify-end sm:right-4 sm:inset-x-auto gap-3 z-40 px-2">
           {/* User Profile and Country Indicator */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {user ? (
-              <div className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-2">
+              <div className="flex items-center gap-3 bg-white/20 rounded-full px-3 py-2">
                 <img 
                   src={user.photoURL} 
                   alt="" 
-                  className="w-6 h-6 rounded-full"
+                  className="w-8 h-8 rounded-full hidden sm:block"
                 />
                 {user.country ? (
                   <button
                     onClick={() => setShowCountrySelect(true)}
-                    className="flex items-center gap-2 p-1 hover:bg-white/10 rounded-full transition-colors"
+                    className="flex items-center gap-2 p-1.5 hover:bg-white/10 rounded-full transition-colors"
                     title="Change your country"
                   >
                     <span className="text-2xl">{user.country.flag}</span>
@@ -335,7 +378,7 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
                 ) : (
                   <button
                     onClick={() => setShowCountrySelect(true)}
-                    className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                    className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
                     title="Select your country"
                   >
                     <Globe className="w-5 h-5 text-white" />
@@ -346,31 +389,31 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
                 </span>
                 <button
                   onClick={handleSignOut}
-                  className="p-1 hover:bg-white/10 rounded-full transition-colors ml-2"
+                  className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
                 >
-                  <LogOut className="w-4 h-4 text-white" />
+                  <LogOut className="w-5 h-5 text-white" />
                 </button>
               </div>
             ) : (
               isGuest ? (
-                <div className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-2">
-                  <UserCircle className="w-6 h-6 text-white" />
+                <div className="flex items-center gap-3 bg-white/20 rounded-full px-3 py-2">
+                  <UserCircle className="w-8 h-8 text-white hidden sm:block" />
                   <span className="text-white text-sm hidden sm:inline">
                     Guest
                   </span>
                   <button
                     onClick={() => dispatch(setGuest(false))}
-                    className="p-1 hover:bg-white/10 rounded-full transition-colors ml-2"
+                    className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
                   >
-                    <LogOut className="w-4 h-4 text-white" />
+                    <LogOut className="w-5 h-5 text-white" />
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-2 hover:bg-white/30 transition-colors"
+                  className="flex items-center gap-3 bg-white/20 rounded-full px-3 py-2 hover:bg-white/30 transition-colors"
                 >
-                  <UserCircle className="w-6 h-6 text-white" />
+                  <UserCircle className="w-8 h-8 text-white" />
                   <span className="text-white text-sm hidden sm:inline">
                     Sign In
                   </span>
@@ -379,51 +422,53 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
             )}
           </div>
 
-          <button 
-            className={`p-2 aspect-square ${
-              gameState === "playing" 
-                ? "bg-white/10 cursor-not-allowed" 
-                : "bg-white/20 hover:bg-white/30"
-            } rounded-full transition-colors flex items-center justify-center`}
-            onClick={() => {
-              if (gameState !== "playing") {
-                if (!user && !isGuest) {
-                  setShowAuthModal(true);
-                } else {
-                  navigate('/shop');
-                }
-              }
-            }}
-            disabled={gameState === "playing"}
-          >
-            <ShoppingBag className="w-6 h-6 text-white" />
-          </button>
-
-          <button
-            onClick={() => setShowLeaderboard(true)}
-            className="p-2 aspect-square bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center"
-          >
-            <Trophy className="w-6 h-6 text-white" />
-          </button>
-
-          <button
-            onClick={() => setShowSettings(true)}
-            className="p-2 aspect-square bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center"
-          >
-            <Settings className="w-6 h-6 text-white" />
-          </button>
-
-          {gameState === "playing" && (
-            <button
+          <div className="flex gap-3">
+            <button 
+              className={`p-2 aspect-square ${
+                gameState === "playing" 
+                  ? "bg-white/10 cursor-not-allowed" 
+                  : "bg-white/20 hover:bg-white/30"
+              } rounded-full transition-colors flex items-center justify-center min-w-[40px] min-h-[40px]`}
               onClick={() => {
-                setIsPaused(true);
-                setShowPauseModal(true);
+                if (gameState !== "playing") {
+                  if (!user && !isGuest) {
+                    setShowAuthModal(true);
+                  } else {
+                    navigate('/shop');
+                  }
+                }
               }}
-              className="p-2 aspect-square bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center"
+              disabled={gameState === "playing"}
             >
-              <Pause className="w-6 h-6 text-white" />
+              <ShoppingBag className="w-6 h-6 text-white" />
             </button>
-          )}
+
+            <button
+              onClick={() => setShowLeaderboard(true)}
+              className="p-2 aspect-square bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center min-w-[40px] min-h-[40px]"
+            >
+              <Trophy className="w-6 h-6 text-white" />
+            </button>
+
+            <button
+              onClick={() => setShowSettings(true)}
+              className="p-2 aspect-square bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center min-w-[40px] min-h-[40px]"
+            >
+              <Settings className="w-6 h-6 text-white" />
+            </button>
+
+            {gameState === "playing" && (
+              <button
+                onClick={() => {
+                  setIsPaused(true);
+                  setShowPauseModal(true);
+                }}
+                className="p-2 aspect-square bg-white/20 rounded-full hover:bg-white/30 transition-colors flex items-center justify-center min-w-[40px] min-h-[40px]"
+              >
+                <Pause className="w-6 h-6 text-white" />
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -534,12 +579,12 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
         </div>
       )}
 
-      {/* Game States UI */}
+      {/* Game States UI - Updated for mobile */}
       {gameState === "start" && (
         <>
-          <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-14 z-30">
-            <h1 className="game-header">Quantum Fly</h1>
-            <button onClick={handleStartGameClick} className="game-btn">
+          <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-8 sm:gap-14 z-30 px-4">
+            <h1 className="game-header text-5xl sm:text-7xl md:text-8xl lg:text-9xl text-center">Quantum Fly</h1>
+            <button onClick={handleStartGameClick} className="game-btn text-xl sm:text-2xl px-8 py-4 min-w-[200px] whitespace-nowrap">
               Start Game
             </button>
           </div>
@@ -547,15 +592,15 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
       )}
 
       {gameState === "mode" && (
-        <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-14 z-30">
-          <h2 className="game-header">Select Mode</h2>
-          <div className="flex gap-5">
+        <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-8 sm:gap-14 z-30 px-4">
+          <h2 className="game-header text-4xl sm:text-6xl md:text-7xl text-center">Select Mode</h2>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 w-full max-w-xl px-4">
             <button
               onMouseOver={() => setModeDescription(
                 "Use your voice to control the qubit! Clap or make loud noises to move the qubit upward—stay quiet, and watch it fall."
               )}
               onClick={() => handleStartClick("sound")}
-              className="game-btn quantum-theme w-56"
+              className="game-btn quantum-theme text-xl px-8 py-4 w-full whitespace-nowrap"
             >
               Quantum Pulse
             </button>
@@ -564,52 +609,52 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
                 "Your smile powers the qubit! The bigger your smile, the higher the qubit flies. Frown, and it slowly drifts down."
               )}
               onClick={() => handleStartClick("smiling")}
-              className="game-btn quantum-theme w-56"
+              className="game-btn quantum-theme text-xl px-8 py-4 w-full whitespace-nowrap"
             >
               Grin Gravity
             </button>
           </div>
           <p className={`font-bold absolute bottom-5 bg-white ${
             modeDescription ? "opacity-75" : "opacity-0"
-          } rounded-2xl p-8 z-30`}>
+          } rounded-2xl p-4 sm:p-8 z-30 mx-4 text-base max-w-2xl text-center`}>
             {modeDescription}
           </p>
         </div>
       )}
 
       {gameState === "gameover" && (
-        <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-6 z-30">
-          <h1 className="game-header">Game Over</h1>
-          <h2 className="game-subheader">Final Score: {score}</h2>
-          <div className="flex gap-4">
+        <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 gap-4 sm:gap-6 z-30 px-4">
+          <h1 className="game-header text-4xl sm:text-6xl md:text-7xl text-center">Game Over</h1>
+          <h2 className="game-subheader text-xl sm:text-2xl">Final Score: {score}</h2>
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xl px-4">
             <button 
               onClick={() => {
                 setScore(0);
                 setGameState("start");
                 setError(null);
               }} 
-              className="game-btn"
+              className="game-btn text-xl px-8 py-4 w-full whitespace-nowrap"
             >
               Play Again
             </button>
             <button 
               onClick={() => setShowLeaderboard(true)}
-              className="game-btn quantum-theme"
+              className="game-btn quantum-theme text-xl px-8 py-4 w-full whitespace-nowrap"
             >
-              View Global Leaderboard
+              View Leaderboard
             </button>
           </div>
         </div>
       )}
 
       {gameState === "playing" && (
-        <div className="absolute top-5 left-5 text-white text-2xl font-bold bg-black/50 p-3 rounded-2xl z-30">
+        <div className="absolute top-5 left-5 text-white text-xl sm:text-2xl font-bold bg-black/50 p-2 sm:p-3 rounded-2xl z-30">
           Quantum Score: {score}
         </div>
       )}
 
       {error && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-500 text-2xl font-bold z-30">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-500 text-xl sm:text-2xl font-bold z-30 text-center px-4">
           {error}
         </div>
       )}
