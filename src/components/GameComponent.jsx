@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Pause, Settings, ShoppingBag, Trophy, UserCircle, LogOut, Globe } from "lucide-react";
 import { initGame, updateGame, startGame } from "../gameLogic";
@@ -132,6 +132,18 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
     }
   };
 
+  const handleGameOver = useCallback(() => {
+    setGameState("gameover");
+    setShowLeaderboard(true);
+    
+    if (user && !user.country && countryPromptCount < 3) {
+      const timer = setTimeout(() => {
+        setShowCountrySelect(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, countryPromptCount]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -159,7 +171,7 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
     }
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [gameState, canvasSize, isClapping, isPaused]);
+  }, [gameState, canvasSize, isClapping, isPaused, handleGameOver, musicEnabled]);
 
   const handleStartClick = async (selectedMode) => {
     const canvas = canvasRef.current;
@@ -282,20 +294,6 @@ function GameComponent({ bgImage, gameIntroSoundFile }) {
       startGame(canvasSize.width, canvasSize.height, gameSpeed);
     }
   }, [gameState, canvasSize]);
-
-  // Handle game over and country prompt
-  const handleGameOver = async () => {
-    setGameState("gameover");
-    setShowLeaderboard(true);
-    
-    // If user needs to select country, show the prompt after leaderboard is closed
-    if (user && !user.country && countryPromptCount < 3) {
-      const timer = setTimeout(() => {
-        setShowCountrySelect(true);
-      }, 1000); // 1 second delay after leaderboard is closed
-      return () => clearTimeout(timer);
-    }
-  };
 
   return (
     <div className="relative w-screen h-screen overflow-hidden">
