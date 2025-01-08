@@ -102,7 +102,7 @@ function AuthModal({ onClose, onSuccess, onGuestPlay }) {
     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-gradient-to-b from-gray-900 to-black w-full max-w-md rounded-2xl p-8 mx-4 border border-white/20">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-white">Welcome to Quantum Fly</h2>
+          <h2 className="text-4xl font-bold text-white">Welcome to  Quantum Fly</h2>
           <button 
             onClick={onClose}
             className="p-2 hover:bg-white/10 rounded-full transition-colors"
