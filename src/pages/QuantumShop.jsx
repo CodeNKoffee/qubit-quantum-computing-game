@@ -84,128 +84,131 @@ function QuantumShop() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
-        {/* Quantum Coins Section */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-            <img src={quantumCoinIcon} alt="" className="w-8 h-8" />
-            Quantum Coins
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {packages.map((pkg) => (
-              <div 
-                key={pkg.name}
-                className={`relative rounded-xl overflow-hidden transform transition-transform hover:scale-105 ${
-                  pkg.popular ? 'border-2 border-yellow-500' : 'border border-white/20'
-                }`}
-              >
-                {pkg.popular && (
-                  <div className="absolute top-0 right-0 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-bl">
-                    POPULAR
-                  </div>
-                )}
-                
-                <div className="bg-gradient-to-b from-purple-900/50 to-black p-4 flex flex-col h-full">
-                  <h3 className="text-white font-bold mb-2">{pkg.name}</h3>
+      {/* Main Content - Make it scrollable */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8 min-h-[calc(100vh-80px)] flex flex-col">
+        {/* Content Wrapper - Takes all space except footer */}
+        <div className="flex-grow">
+          {/* Quantum Coins Section */}
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+              <img src={quantumCoinIcon} alt="" className="w-8 h-8" />
+              Quantum Coins
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {packages.map((pkg) => (
+                <div 
+                  key={pkg.name}
+                  className={`relative rounded-xl overflow-hidden transform transition-transform hover:scale-105 ${
+                    pkg.popular ? 'border-2 border-yellow-500' : 'border border-white/20'
+                  }`}
+                >
+                  {pkg.popular && (
+                    <div className="absolute top-0 right-0 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-bl">
+                      POPULAR
+                    </div>
+                  )}
                   
-                  <div className="flex-grow">
-                    <div className="flex items-center gap-2 mb-2">
-                      <img src={quantumCoinIcon} alt="Quantum Coin" className="w-6 h-6" />
-                      <span className="text-2xl font-bold text-white">
-                        {pkg.coins.toLocaleString()}
-                      </span>
-                    </div>
-
-                    {pkg.bonus > 0 && (
-                      <div className="text-green-400 text-sm mb-2">
-                        +{pkg.bonus.toLocaleString()} Bonus
+                  <div className="bg-gradient-to-b from-purple-900/50 to-black p-4 flex flex-col h-full">
+                    <h3 className="text-white font-bold mb-2">{pkg.name}</h3>
+                    
+                    <div className="flex-grow">
+                      <div className="flex items-center gap-2 mb-2">
+                        <img src={quantumCoinIcon} alt="Quantum Coin" className="w-6 h-6" />
+                        <span className="text-2xl font-bold text-white">
+                          {pkg.coins.toLocaleString()}
+                        </span>
                       </div>
-                    )}
 
-                    <div className="text-white/60 text-sm mb-4">
-                      {pkg.description}
+                      {pkg.bonus > 0 && (
+                        <div className="text-green-400 text-sm mb-2">
+                          +{pkg.bonus.toLocaleString()} Bonus
+                        </div>
+                      )}
+
+                      <div className="text-white/60 text-sm mb-4">
+                        {pkg.description}
+                      </div>
+
+                      <div className="text-white font-bold mb-4">
+                        ${pkg.price}
+                      </div>
                     </div>
 
-                    <div className="text-white font-bold mb-4">
-                      ${pkg.price}
-                    </div>
+                    <button 
+                      onClick={handlePurchase}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                    >
+                      Purchase
+                    </button>
                   </div>
+                </div>
+              ))}
+            </div>
+          </section>
 
-                  <button 
-                    onClick={handlePurchase}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
-                  >
-                    Purchase
-                  </button>
+          {/* Coming Soon Section */}
+          <section className="relative">
+            <div className="flex items-center gap-3 mb-8">
+              <h2 className="text-2xl font-bold text-white">Coming Soon</h2>
+              <Sparkles className="w-6 h-6 text-yellow-500" />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Character Skins */}
+              <div className="relative rounded-xl overflow-hidden border border-white/20 group h-[400px]">
+                <img 
+                  src={charactersImage} 
+                  alt="Quantum Characters" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                <div className="relative p-6 h-full flex flex-col justify-end">
+                  <h3 className="text-xl font-bold text-white mb-2 min-h-[32px]">Quantum Character Skins</h3>
+                  <p className="text-white/80 mb-4 min-h-[48px]">Transform your qubit with legendary quantum-themed skins</p>
+                  <div className="absolute top-2 right-2">
+                    <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm backdrop-blur-sm">Coming Soon</span>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
 
-        {/* Coming Soon Section */}
-        <section className="relative">
-          <div className="flex items-center gap-3 mb-8">
-            <h2 className="text-2xl font-bold text-white">Coming Soon</h2>
-            <Sparkles className="w-6 h-6 text-yellow-500" />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Character Skins */}
-            <div className="relative rounded-xl overflow-hidden border border-white/20 group h-[400px]">
-              <img 
-                src={charactersImage} 
-                alt="Quantum Characters" 
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
-              <div className="relative p-6 h-full flex flex-col justify-end">
-                <h3 className="text-xl font-bold text-white mb-2 min-h-[32px]">Quantum Character Skins</h3>
-                <p className="text-white/80 mb-4 min-h-[48px]">Transform your qubit with legendary quantum-themed skins</p>
-                <div className="absolute top-2 right-2">
-                  <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm backdrop-blur-sm">Coming Soon</span>
+              {/* Particle Effects */}
+              <div className="relative rounded-xl overflow-hidden border border-white/20 group h-[400px]">
+                <img 
+                  src={trailsImage} 
+                  alt="Quantum Trails" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                <div className="relative p-6 h-full flex flex-col justify-end">
+                  <h3 className="text-xl font-bold text-white mb-2 min-h-[32px]">Quantum Trails</h3>
+                  <p className="text-white/80 mb-4 min-h-[48px]">Leave a trail of quantum particles as you fly</p>
+                  <div className="absolute top-2 right-2">
+                    <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm backdrop-blur-sm">Coming Soon</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Special Effects */}
+              <div className="relative rounded-xl overflow-hidden border border-white/20 group h-[400px]">
+                <img 
+                  src={emotesImage} 
+                  alt="Quantum Effects" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                <div className="relative p-6 h-full flex flex-col justify-end">
+                  <h3 className="text-xl font-bold text-white mb-2 min-h-[32px]">Quantum Effects</h3>
+                  <p className="text-white/80 mb-4 min-h-[48px]">Special effects and celebrations for your victories</p>
+                  <div className="absolute top-2 right-2">
+                    <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm backdrop-blur-sm">Coming Soon</span>
+                  </div>
                 </div>
               </div>
             </div>
+          </section>
+        </div>
 
-            {/* Particle Effects */}
-            <div className="relative rounded-xl overflow-hidden border border-white/20 group h-[400px]">
-              <img 
-                src={trailsImage} 
-                alt="Quantum Trails" 
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
-              <div className="relative p-6 h-full flex flex-col justify-end">
-                <h3 className="text-xl font-bold text-white mb-2 min-h-[32px]">Quantum Trails</h3>
-                <p className="text-white/80 mb-4 min-h-[48px]">Leave a trail of quantum particles as you fly</p>
-                <div className="absolute top-2 right-2">
-                  <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm backdrop-blur-sm">Coming Soon</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Special Effects */}
-            <div className="relative rounded-xl overflow-hidden border border-white/20 group h-[400px]">
-              <img 
-                src={emotesImage} 
-                alt="Quantum Effects" 
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
-              <div className="relative p-6 h-full flex flex-col justify-end">
-                <h3 className="text-xl font-bold text-white mb-2 min-h-[32px]">Quantum Effects</h3>
-                <p className="text-white/80 mb-4 min-h-[48px]">Special effects and celebrations for your victories</p>
-                <div className="absolute top-2 right-2">
-                  <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm backdrop-blur-sm">Coming Soon</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
+        {/* Footer - Always at bottom */}
         <footer className="mt-12 text-center text-white/60 text-sm border-t border-white/10 pt-6">
           <p>Quantum Coins can be used to continue gameplay after losing and unlock special features.</p>
           <p className="mt-2">All purchases are final and non-refundable.</p>
