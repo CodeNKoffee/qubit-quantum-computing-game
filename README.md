@@ -1,130 +1,172 @@
-# Quantum Fly
+# Quantum Fly 🎮
 
-![Quantum Fly Banner](./assets/quantum-flappy-face-banner.png)
+A cutting-edge web-based quantum-themed game that combines modern web technologies with innovative control mechanisms. Players control a quantum bit (qubit) through sound or facial expressions, navigating through a mesmerizing quantum realm.
 
-## Project Preview
+## 🌟 Features
 
-[Insert a GIF or screenshot of your game here once it's developed]
+- **Innovative Controls**: 
+  - Quantum Pulse Mode: Control your qubit through sound/clapping
+  - Grin Gravity Mode (Coming Soon): Control using facial expressions
+- **Cross-Platform Compatibility**:
+  - Desktop browsers
+  - Mobile devices (Portrait mode optimized)
+  - Tablets
+- **Social Features**:
+  - Global leaderboard
+  - Country representation system
+  - User profiles
+- **Premium Features** (Coming Soon):
+  - Character skins
+  - Quantum trails
+  - Special effects
+- **Monetization**:
+  - Virtual currency (Quantum Coins)
+  - Premium packages
+  - In-game shop
 
-Quantum Fly is an innovative, interactive game that combines the addictive gameplay of Flappy Bird with cutting-edge sound detection technology and (soon to be implemented smiling technology) quantum computing themes. Perfect for engaging participants at tech booths or introducing quantum computing concepts in a fun, accessible way.
+## 🚀 Technologies Used
 
-## Table of Contents
+- React.js with Vite
+- Redux for state management
+- Firebase (Authentication, Firestore, Analytics)
+- TailwindCSS for styling
+- Web Audio API for sound detection
+- Canvas API for game rendering
 
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [How to Play](#how-to-play)
-- [Development](#development)
-  - [Project Structure](#project-structure)
-  - [Key Components](#key-components)
-- [Customization](#customization)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
-
-## Features
-
-- Face-controlled gameplay using real-time face detection
-- Quantum computing-themed graphics and obstacles
-- Responsive design for various screen sizes
-- Real-time score tracking
-- Engaging start and game over screens
-
-## Technology Stack
-
-- React.js - UI and game logic
-- TensorFlow.js - Face detection
-- HTML Canvas - Game rendering
-- TailwindCSS - Styling
-- Vite - Build tool and development server
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v14.0.0 or later)
-- npm (v6.0.0 or later)
-- A modern web browser with camera access
-
-### Installation
+## 🛠️ Installation
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/quantum-flappy-face.git
-   cd quantum-flappy-face
-   ```
+```bash
+git clone https://github.com/yourusername/quantum-fly.git
+cd quantum-fly
+```
 
 2. Install dependencies:
-   ```
-   npm install
-   ```
-
-3. Start the development server:
-   ```
-   npm run dev
-   ```
-
-4. Open your browser and navigate to `http://localhost:3000`
-
-## How to Play
-
-1. Allow camera access when prompted
-2. Click the "Start Game" button
-3. Move your face up and down to control the quantum bird
-4. Avoid the quantum-themed obstacles
-5. Try to achieve the highest score possible!
-
-## Development
-
-### Project Structure
-
-```
-quantum-flappy-face/
-│
-├── src/
-│   ├── components/
-│   │   └── Game.jsx
-│   ├── utils/
-│   │   ├── gameLogic.js
-│   │   └── faceDetection.js
-│   ├── App.jsx
-│   └── main.jsx
-│
-├── public/
-│   └── assets/
-│       ├── quantum-bird.png
-│       ├── quantum-pipe.png
-│       └── quantum-background.png
-│
-├── index.html
-└── package.json
+```bash
+npm install
 ```
 
-### Key Components
+3. Create a `.env` file in the root directory with your Firebase configuration:
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+```
 
-- `Game.jsx`: Main game component
-- `gameLogic.js`: Core game mechanics
-- `faceDetection.js`: Face tracking logic
+4. Start the development server:
+```bash
+npm run dev
+```
 
-## Customization
+## 📱 Mobile Support
 
-- Modify `src/utils/gameLogic.js` to adjust game difficulty
-- Update assets in `public/assets/` to change the game's appearance
-- Tweak face detection sensitivity in `src/utils/faceDetection.js`
+The game is optimized for mobile devices in portrait mode, featuring:
+- Responsive UI elements
+- Touch-friendly controls
+- Adaptive canvas sizing
+- Performance optimizations
 
-## Acknowledgments
+## 🎮 How to Play
 
-- **Intro Music:** ["8 Bit Game Intro Loop.wav"](https://freesound.org/s/520937/) by Mrthenoronha – Licensed under [Attribution NonCommercial 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
-- **Game Over Sound Effect:** ["8-bit Game Over Sound/Tune"](https://freesound.org/s/533034/) by EVRetro – Licensed under [Creative Commons 0](https://creativecommons.org/publicdomain/zero/1.0/).
+1. **Start**: Click "Start Game" on the main screen
+2. **Choose Mode**: Select "Quantum Pulse" mode
+3. **Controls**: 
+   - Clap or make noise to make the qubit fly upward
+   - Stay quiet to let it fall
+4. **Objective**: Navigate through quantum barriers to achieve the highest score
+5. **Scoring**: Each barrier passed adds to your quantum score
+6. **Game Over**: Colliding with barriers or the ground ends the game
 
-Special thanks to these creators for their awesome contributions, which help make Quantum Fly even more engaging!
+## 💎 Premium Features
 
-## Contributing
+The game includes a virtual shop with:
+- Quantum Coins packages
+- Character customization (Coming Soon)
+- Special effects (Coming Soon)
+- Particle trails (Coming Soon)
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details.
+## 🔒 License
 
-## License
+This software is protected under a Proprietary License. All rights reserved.
 
-This project is licensed under the MIT License - se
+To obtain a license:
+1. Visit https://choosealicense.com/no-permission/
+2. Copy the license text
+3. Create a file named `LICENSE` in your project root
+4. Add the following header to the license:
+```
+Copyright (c) [Year] [Your Name/Company]
+All Rights Reserved
+
+[Rest of the license text from choosealicense.com/no-permission/]
+```
+
+This license:
+- Reserves all rights
+- Prohibits distribution
+- Prohibits modification
+- Prohibits commercial use without permission
+- Requires attribution
+
+## 🤝 Contributing
+
+This is a proprietary project and is not open for public contributions. All rights reserved.
+
+## 📞 Support
+
+For support, please contact [your-email@domain.com]
+
+## 🔄 Updates
+
+The game is regularly updated with:
+- New features
+- Performance improvements
+- Security patches
+- Bug fixes
+
+## ⚠️ Requirements
+
+- Modern web browser with WebGL support
+- Microphone access for sound controls
+- Stable internet connection
+- Recommended: Chrome/Firefox/Safari latest version
+
+## 🏗️ Development
+
+For development:
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## 🔐 Security
+
+- Firebase Authentication for user management
+- Secure environment variables
+- Data encryption in transit
+- Regular security updates
+
+## 📈 Analytics
+
+The game uses Firebase Analytics to track:
+- User engagement
+- Game performance
+- Feature usage
+- Error reporting
+
+---
+
+© [Year] [Your Name/Company]. All Rights Reserved.
